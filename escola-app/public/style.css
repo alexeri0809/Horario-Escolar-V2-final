@@ -1,0 +1,149 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  background: #f4f6f8;
+  color: #222; /* Cor do texto principal baseada no logo */
+}
+
+/* Marca de água no fundo (símbolo mais claro) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* Substituir pela imagem do seu logo local se necessário */
+  background-image: url("logo-epbjc.png"); 
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 600px;
+  
+  opacity: 0.04; /* Ajustado para visibilidade subtil */
+  z-index: -1;
+}
+
+/* Marca de água da escola no canto inferior direito */
+body::after {
+  content: "";
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  
+  width: 250px;
+  height: 150px;
+  
+  background-image: url("https://www.inovinter.pt/wp-content/uploads/2019/09/header_epbjc.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* MENU LATERAL - Usando o tom escuro do logótipo */
+.menu {
+  width: 220px;
+  background: #1a1a1a; /* Preto suave do logo */
+  color: white;
+  height: 100vh;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.menu a {
+  display: block;
+  color: #e0e0e0;
+  padding: 12px;
+  text-decoration: none;
+  margin-top: 5px;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+.menu a:hover {
+  background: #ffffff; /* Ciano do logo no hover */
+  color: rgb(35, 99, 28);
+}
+
+/* CONTEÚDO */
+.content {
+  flex: 1;
+  padding: 40px;
+}
+
+/* CARDS */
+.card {
+  background: white;
+  padding: 25px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-top: 4px solid #00abc8; /* Detalhe em ciano no topo */
+}
+
+/* INPUTS */
+input {
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* BOTÕES - Usando o branco como fundo e o verde como texto. */
+button {
+  padding: 10px 20px;
+  background: #ffffff; 
+  border: none;
+  color: rgb(59, 146, 50);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #000000; /* Um tom de ciano mais fechado para o hover */
+}
+
+/* TABELA */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: white; /* Alterar cor do fundo dos horarios pares. 08:00, 10:00, etc... */
+}
+
+th, td {
+  border: 2px solid #030000; /* Alterar cor das bordas da tabela */
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background: #00abc8; /* Cabeçalho com a cor principal */
+  color: white; /* Alterar cor das letras do dias da semana. Seg, Ter, Qua, Qui e Sex */
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 1px;
+}
+
+tr:nth-child(even) {
+  background-color: #ffffff; /* Alterar cor do fundo dos horarios impares. 09:00, 11:00, etc...  */
+}
+
+.aula-card{
+padding:8px;
+border-radius:6px;
+color:#000;
+font-size:13px;
+}
+
+.aula-card button{
+margin-top:4px;
+margin-right:4px;
+padding:3px 6px;
+font-size:11px;
+}

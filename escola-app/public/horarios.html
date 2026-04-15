@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>Horários</title>
+</head>
+<body>
+
+<div class="menu">
+<h2>🏫 Escola</h2>
+<a href="index.html">Dashboard</a>
+<a href="professores.html">Professores</a>
+<a href="turmas.html">Turmas</a>
+<a href="horarios.html">Horários</a>
+</div>
+
+<div class="content">
+<h1>📅 Horários</h1>
+
+<div class="card">
+<select id="turma"></select>
+<select id="professor"></select>
+<select id="dia">
+<option>Segunda</option>
+<option>Terca</option>
+<option>Quarta</option>
+<option>Quinta</option>
+<option>Sexta</option>
+</select>
+<input id="hora" placeholder="08:00">
+<input id="disciplina" placeholder="Disciplina">
+<button onclick="addHorario()">Adicionar</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Hora</th>
+<th>Seg</th>
+<th>Ter</th>
+<th>Qua</th>
+<th>Qui</th>
+<th>Sex</th>
+</tr>
+</thead>
+<tbody id="tabela"></tbody>
+</table>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

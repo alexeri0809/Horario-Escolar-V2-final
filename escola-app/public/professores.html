@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>Professores</title>
+</head>
+<body>
+
+<div class="menu">
+<h2>🏫 Escola</h2>
+<a href="index.html">Dashboard</a>
+<a href="professores.html">Professores</a>
+<a href="turmas.html">Turmas</a>
+<a href="horarios.html">Horários</a>
+</div>
+
+<div class="content">
+<h1>👨‍🏫 Professores</h1>
+
+<div class="card">
+<input id="nome" placeholder="Nome do professor">
+<button onclick="addProfessor()">Adicionar</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Nome</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="lista"></tbody>
+</table>
+
+</div>
+
+<script>
+async function carregar(){
+    let r=await fetch("/professores")
+    let dados=await r.json()
+    let lista=document.getElementById("lista")
+    lista.innerHTML=""
+    dados.forEach(p=>{
+        lista.innerHTML+=`
+        <tr>
+        <td>${p.id}</td>
+        <td>${p.nome}</td>
+        <td>
+        <button onclick="apagarProfessor(${p.id})">❌</button>
+        </td>
+        </tr>
+        `
+    })
+}
+
+async function addProfessor(){
+    let nome=document.getElementById("nome").value
+    if(!nome) return
+    await fetch("/professores",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({nome})})
+    document.getElementById("nome").value=""
+    carregar()
+}
+
+async function apagarProfessor(id){
+    let r = await fetch("/professores/"+id,{
+        method:"DELETE",
+        headers: {"Content-Type":"application/json"}
+    })
+    let res = await r.json()
+    if(res.ok) carregar()
+    else alert("Erro ao apagar: "+res.error)
+}
+
+carregar()
+</script>
+
+</body>
+</html>
