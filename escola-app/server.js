@@ -41,14 +41,51 @@ app.delete("/turmas/:id",(req,res)=>{
 app.get("/horarios",(req,res)=>{
     db.all("SELECT * FROM horarios",(e,r)=>res.json(r))
 })
+
 app.post("/horarios",(req,res)=>{
-    const {turma,dia,hora,disciplina,professor}=req.body
-    db.run(
-        `INSERT INTO horarios(turma,dia,hora,disciplina,professor)
-         VALUES(?,?,?,?,?)`,
-        [turma,dia,hora,disciplina,professor]
+
+    const {turma,professor,disciplina,dia,hora}=req.body
+
+    db.get(
+        "SELECT * FROM horarios WHERE dia=? AND hora=? AND turma=?",
+        [dia,hora,turma],
+        (err,row)=>{
+
+            if(row){
+                return res.status(400).json({erro:"Já existe aula neste horário"})
+            }
+
+            db.run(
+                "INSERT INTO horarios(turma,professor,disciplina,dia,hora) VALUES(?,?,?,?,?)",
+                [turma,professor,disciplina,dia,hora],
+                function(err){
+                    if(err) return res.status(500).json({error:err.message})
+                    res.json({ok:true,id:this.lastID})
+                }
+            )
+        }
     )
-    res.json({ok:true})
+})
+
+app.put("/horarios/:id",(req,res)=>{
+    let id=req.params.id
+    let {disciplina}=req.body
+
+    db.run("UPDATE horarios SET disciplina=? WHERE id=?",
+    [disciplina,id],
+    err=>{
+        if(err) return res.status(500).send(err)
+        res.send({ok:true}) 
+    })
+})
+
+app.delete("/horarios/:id",(req,res)=>{
+    let id=req.params.id
+
+    db.run("DELETE FROM horarios WHERE id=?",[id],err=>{
+        if(err) return res.status(500).send(err)
+        res.send({ok:true})
+    })
 })
 
 app.listen(3000,()=>console.log("Servidor em http://localhost:3000"))

@@ -1,19 +1,7 @@
-const coresDisciplinas={
-    "MAT":"#aa3a1ef6",
-    "PORT":"#c22d2dff",
-    "ING":"#2427d4ff",
-    "AI":"#dfe221ff",
-    "EF":"#3bc6f0ff",
-    "FQ":"#6b6b6bff",
-    "PSI":"#ff9900ff",
-    "AC":"#7c19daff",
-    "SO":"#62ac5bff",
-    "RC":"#cfe4a7ff",
-    "FRA":"#337c16ff",
-}
+
 
 function corDisciplina(nome){
-    return coresDisciplinas[nome] || "#dfe6e9"
+    return coresDisciplinas[nome] || "#ffffffff"
 }
 
 function calcularFim(inicio){
@@ -60,20 +48,21 @@ async function carregarHorarios(){
 
             if(aula){
 
-                let fim=calcularFim(aula.hora)
+    let fim=calcularFim(aula.hora)
+    let estilo=estiloDisciplina(aula.disciplina)
 
-                linha+=`
-                <td>
-                <div class="aula-card" style="background:${corDisciplina(aula.disciplina)}">
-                <b>${aula.disciplina}</b><br>
-                ${aula.professor}<br>
-                ${aula.hora} - ${fim}<br>
-                <button onclick="editarAula('${aula.id}')">✏️</button>
-                <button onclick="removerAula('${aula.id}')">🗑️</button>
-                </div>
-                </td>
-                `
-            }
+    linha+=`
+    <td>
+    <div class="aula-card" style="background:${estilo.bg}; color:${estilo.color}">
+    <b>${aula.disciplina}</b><br>
+    ${aula.professor}<br>
+    ${aula.hora} - ${fim}<br>
+    <button onclick="editarAula('${aula.id}')">✏️</button>
+    <button onclick="removerAula('${aula.id}')">🗑️</button>
+    </div>
+    </td>
+    `
+}
             else{
 
                 if(h=="13:00" && d!="Sexta"){
@@ -118,18 +107,48 @@ async function editarAula(id){
 }
 
 async function addHorario(){
+
     let turma=document.getElementById("turma").value
     let professor=document.getElementById("professor").value
     let dia=document.getElementById("dia").value
     let hora=document.getElementById("hora").value
     let disciplina=document.getElementById("disciplina").value
-    if(!turma || !professor || !hora || !disciplina) return
-    await fetch("/horarios",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({turma,dia,hora,disciplina,professor})})
-    carregarHorarios()
+
+    if(!turma || !professor || !hora || !disciplina){
+        alert("Preencha todos os campos")
+        return
+    }
+
     if(hora=="13:00" && dia!="Sexta"){
-    alert("⛔ Hora de almoço! Não é possível adicionar aulas às 13:00 de Segunda a Quinta.")
-    return
+        alert("⛔ Hora de almoço! Não é possível adicionar aulas às 13:00 de Segunda a Quinta.")
+        return
+    }
+
+    await fetch("/horarios",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({turma,dia,hora,disciplina,professor})
+    })
+
+    carregarHorarios()
 }
+
+const disciplinasStyle={
+    "MAT":{bg:"#aa3a1ef6",color:"#fff"},
+    "PORT":{bg:"#c22d2dff",color:"#fff"},
+    "ING":{bg:"#2427d4ff",color:"#fff"},
+    "PSI":{bg:"#ff9900ff",color:"#000"},
+    "FQ":{bg:"#6b6b6bff",color:"#fff"},
+    "EF":{bg:"#3bc6f0ff",color:"#000"},
+    "SO":{bg:"#62ac5bff",color:"#fff"},
+    "AC":{bg:"#430c70ff",color:"#fff"},
+    "RC":{bg:"#cfe4a7ff",color:"#000"},
+    "FRA":{bg:"#337c16ff",color:"#fff"},
+    "AI":{bg:"#dfe221ff",color:"#000"}
+}
+
+function estiloDisciplina(nome){
+    return disciplinasStyle[nome] || {bg:"#dfe6e9",color:"#000"}
 }
 
 carregarSelects()
