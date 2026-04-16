@@ -1,4 +1,39 @@
+let disciplinas=JSON.parse(localStorage.getItem("disciplinas")) || []
 
+function criarDisciplina(){
+
+    let nome=prompt("Nome da disciplina (ex: MAT)")
+    if(!nome) return
+
+    let cor=prompt("Cor da disciplina (ex: #ff0000)")
+    if(!cor) return
+
+    let texto=prompt("Cor do texto (#000 ou #fff)")
+    if(!texto) return
+
+    disciplinas.push({
+        nome:nome,
+        bg:cor,
+        color:texto
+    })
+
+    localStorage.setItem("disciplinas",JSON.stringify(disciplinas))
+
+    atualizarDisciplinas()
+}
+
+function atualizarDisciplinas(){
+
+    let select=document.getElementById("disciplina")
+
+    if(!select) return
+
+    select.innerHTML=""
+
+    disciplinas.forEach(d=>{
+        select.innerHTML+=`<option>${d.nome}</option>`
+    })
+}
 
 function corDisciplina(nome){
     return coresDisciplinas[nome] || "#ffffffff"
@@ -16,7 +51,7 @@ function calcularFim(inicio){
         m-=60
     }
 
-    return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")
+    return String( ).padStart(" ")+" "+String( ).padStart(" ")
 }
 
 async function carregarSelects(){
@@ -34,7 +69,7 @@ async function carregarHorarios(){
     let dados=await fetch("/horarios").then(r=>r.json())
     let tabela=document.getElementById("tabela")
 
-    let horas=["08:30","09:30","10:45","11:45","12:00","13:00","14:00","15:00","16:10","17:10"]
+    let horas=["08:30 - 9:20","09:30 - 10:20","10:45 - 11:35","11:45 - 12:30","13:00 - 13:50","14:00 - 14:50","15:00 - 15:50","16:10 - 17:00","17:10 - 18:00"]
     let dias=["Segunda","Terca","Quarta","Quinta","Sexta"]
 
     tabela.innerHTML=""
@@ -65,7 +100,7 @@ async function carregarHorarios(){
 }
             else{
 
-                if(h=="13:00" && d!="Sexta"){
+                if(h=="13:00 - 13:50" && d!="Sexta"){
                     linha+=`<td style="background:#eee">🍽️ Almoço</td>`
                 }else{
                     linha+="<td></td>"
@@ -91,19 +126,46 @@ async function removerAula(id){
     carregarHorarios()
 }
 
+let aulaEditando=null
+
 async function editarAula(id){
 
-    let novaDisciplina=prompt("Nova disciplina")
+    aulaEditando=id
 
-    if(!novaDisciplina) return
+    let dados=await fetch("/horarios").then(r=>r.json())
+    let aula=dados.find(a=>a.id==id)
 
-    await fetch("/horarios/"+id,{
+    if(!aula) return
+
+    document.getElementById("editarBox").style.display="block"
+
+    document.getElementById("editTurma").value=aula.turma
+    document.getElementById("editProfessor").value=aula.professor
+    document.getElementById("editDia").value=aula.dia
+    document.getElementById("editHora").value=aula.hora
+    document.getElementById("editDisciplina").value=aula.disciplina
+}
+
+async function guardarEdicao(){
+
+    let turma=document.getElementById("editTurma").value
+    let professor=document.getElementById("editProfessor").value
+    let dia=document.getElementById("editDia").value
+    let hora=document.getElementById("editHora").value
+    let disciplina=document.getElementById("editDisciplina").value
+
+    await fetch("/horarios/"+aulaEditando,{
         method:"PUT",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({disciplina:novaDisciplina})
+        body:JSON.stringify({turma,professor,disciplina,dia,hora})
     })
 
+    fecharEditor()
     carregarHorarios()
+}
+
+function fecharEditor(){
+    document.getElementById("editarBox").style.display="none"
 }
 
 async function addHorario(){
@@ -119,7 +181,7 @@ async function addHorario(){
         return
     }
 
-    if(hora=="13:00" && dia!="Sexta"){
+    if(hora=="13:00 - 13:50" && dia!="Sexta"){
         alert("⛔ Hora de almoço! Não é possível adicionar aulas às 13:00 de Segunda a Quinta.")
         return
     }
@@ -148,8 +210,29 @@ const disciplinasStyle={
 }
 
 function estiloDisciplina(nome){
-    return disciplinasStyle[nome] || {bg:"#dfe6e9",color:"#000"}
+
+    // primeiro tenta encontrar nas disciplinas criadas
+    let d=disciplinas.find(x=>x.nome==nome)
+
+    if(d) return {bg:d.bg,color:d.color}
+
+    // se não existir usa as cores originais
+    if(disciplinasStyle[nome]) return disciplinasStyle[nome]
+
+    return {bg:"#dfe6e9",color:"#000"}
+}
+
+function carregarDisciplinasEditor(){
+
+    let select=document.getElementById("editDisciplina")
+    select.innerHTML=""
+
+    Object.keys(disciplinasStyle).forEach(d=>{
+        select.innerHTML+=`<option>${d}</option>`
+    })
 }
 
 carregarSelects()
 carregarHorarios()
+atualizarDisciplinas()
+carregarDisciplinasEditor()

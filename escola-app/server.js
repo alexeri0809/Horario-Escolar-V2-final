@@ -68,15 +68,18 @@ app.post("/horarios",(req,res)=>{
 })
 
 app.put("/horarios/:id",(req,res)=>{
-    let id=req.params.id
-    let {disciplina}=req.body
 
-    db.run("UPDATE horarios SET disciplina=? WHERE id=?",
-    [disciplina,id],
-    err=>{
-        if(err) return res.status(500).send(err)
-        res.send({ok:true}) 
-    })
+    let id=req.params.id
+    let {turma,professor,disciplina,dia,hora}=req.body
+
+    db.run(
+        "UPDATE horarios SET turma=?, professor=?, disciplina=?, dia=?, hora=? WHERE id=?",
+        [turma,professor,disciplina,dia,hora,id],
+        err=>{
+            if(err) return res.status(500).send(err)
+            res.send({ok:true})
+        }
+    )
 })
 
 app.delete("/horarios/:id",(req,res)=>{

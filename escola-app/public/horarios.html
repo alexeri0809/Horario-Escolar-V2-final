@@ -29,16 +29,15 @@
 <option>Sexta</option>
 </select>
 <select id="hora">
-<option>08:30</option>
-<option>09:30</option>
-<option>10:45</option>
-<option>11:45</option>
-<option>12:00</option>
-<option>13:00</option>
-<option>14:00</option>
-<option>15:00</option>
-<option>16:10</option>
-<option>17:10</option>
+<option>08:30 - 9:20</option>
+<option>09:30 - 10:20</option>
+<option>10:45 - 11:35</option>
+<option>11:45 - 12:30</option>
+<option>13:00 - 13:50</option>
+<option>14:00 - 14:50</option>
+<option>15:00 - 15:50</option>
+<option>16:10 - 17:00</option>
+<option>17:10 - 18:00</option>
 </select>
 
 <select id="disciplina">
@@ -55,6 +54,7 @@
 <option>AI</option>
 </select>
 <button onclick="addHorario()">Adicionar</button>
+<button onclick="criarDisciplina()">Nova Disciplina</button>
 </div>
 
 <table>
@@ -74,5 +74,36 @@
 </div>
 
 <script src="script.js"></script>
+<div id="editarBox" class="card" style="display:none; position:fixed; top:20%; left:40%; z-index:1000;">
+<h3>Editar Aula</h3>
+
+<select id="editTurma"></select>
+<select id="editProfessor"></select>
+
+<select id="editDia">
+<option>Segunda</option>
+<option>Terca</option>
+<option>Quarta</option>
+<option>Quinta</option>
+<option>Sexta</option>
+</select>
+
+<select id="editHora">
+<option>08:30 - 9:20</option>
+<option>09:30 - 10:20</option>
+<option>10:45 - 11:35</option>
+<option>11:45 - 12:30</option>
+<option>13:00 - 13:50</option>
+<option>14:00 - 14:50</option>
+<option>15:00 - 15:50</option>
+<option>16:10 - 17:00</option>
+<option>17:10 - 18:00</option>
+</select>
+
+<select id="editDisciplina"></select>
+
+<button onclick="guardarEdicao()">Guardar</button>
+<button onclick="fecharEditor()">Cancelar</button>
+</div>
 </body>
 </html>
