@@ -54,7 +54,26 @@
 <option>AI</option>
 </select>
 <button onclick="addHorario()">Adicionar</button>
-<button onclick="criarDisciplina()">Nova Disciplina</button>
+<button onclick="abrirDisciplina()">+ Disciplina</button>
+<div id="novaDisciplinaBox" style="display:none" class="card">
+
+<h3>Nova Disciplina</h3>
+
+<input id="discNome" placeholder="Nome da disciplina">
+
+<label>Cor da disciplina</label>
+<input type="color" id="discCor">
+
+<label>Cor do texto</label>
+<select id="discTexto">
+<option value="#ffffff">Branco</option>
+<option value="#000000">Preto</option>
+</select>
+
+<button onclick="guardarDisciplina()">Guardar</button>
+<button onclick="fecharDisciplina()">Cancelar</button>
+
+</div>
 </div>
 
 <table>

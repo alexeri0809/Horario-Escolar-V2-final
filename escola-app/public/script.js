@@ -132,6 +132,9 @@ async function editarAula(id){
 
     aulaEditando=id
 
+    await carregarEditorSelects()
+    carregarDisciplinas()
+
     let dados=await fetch("/horarios").then(r=>r.json())
     let aula=dados.find(a=>a.id==id)
 
@@ -153,6 +156,8 @@ async function guardarEdicao(){
     let dia=document.getElementById("editDia").value
     let hora=document.getElementById("editHora").value
     let disciplina=document.getElementById("editDisciplina").value
+
+    if(!turma || !professor || !disciplina) return
 
     await fetch("/horarios/"+aulaEditando,{
         method:"PUT",
@@ -195,44 +200,119 @@ async function addHorario(){
     carregarHorarios()
 }
 
-const disciplinasStyle={
-    "MAT":{bg:"#aa3a1ef6",color:"#fff"},
-    "PORT":{bg:"#c22d2dff",color:"#fff"},
-    "ING":{bg:"#2427d4ff",color:"#fff"},
-    "PSI":{bg:"#ff9900ff",color:"#000"},
-    "FQ":{bg:"#6b6b6bff",color:"#fff"},
-    "EF":{bg:"#3bc6f0ff",color:"#000"},
-    "SO":{bg:"#62ac5bff",color:"#fff"},
-    "AC":{bg:"#430c70ff",color:"#fff"},
-    "RC":{bg:"#cfe4a7ff",color:"#000"},
-    "FRA":{bg:"#337c16ff",color:"#fff"},
-    "AI":{bg:"#dfe221ff",color:"#000"}
+async function carregarDisciplinas(){
+
+    disciplinas = await fetch("/disciplinas").then(r=>r.json())
+
+    let select=document.getElementById("disciplina")
+    let selectEdit=document.getElementById("editDisciplina")
+    let nomesUsados = []
+
+disciplinas.forEach(d=>{
+
+    if(nomesUsados.includes(d.nome)) return
+    nomesUsados.push(d.nome)
+
+    if(select)
+        select.innerHTML+=`<option>${d.nome}</option>`
+
+    if(selectEdit)
+        selectEdit.innerHTML+=`<option>${d.nome}</option>`
+
+})
+
+    if(select) select.innerHTML=""
+    if(selectEdit) selectEdit.innerHTML=""
+
+    disciplinas.forEach(d=>{
+
+        if(select)
+            select.innerHTML+=`<option>${d.nome}</option>`
+
+        if(selectEdit)
+            selectEdit.innerHTML+=`<option>${d.nome}</option>`
+
+    })
 }
 
 function estiloDisciplina(nome){
 
-    // primeiro tenta encontrar nas disciplinas criadas
     let d=disciplinas.find(x=>x.nome==nome)
 
-    if(d) return {bg:d.bg,color:d.color}
-
-    // se não existir usa as cores originais
-    if(disciplinasStyle[nome]) return disciplinasStyle[nome]
+    if(d) return {bg:d.cor,color:d.texto}
 
     return {bg:"#dfe6e9",color:"#000"}
 }
 
-function carregarDisciplinasEditor(){
+async function carregarEditorSelects(){
 
-    let select=document.getElementById("editDisciplina")
-    select.innerHTML=""
+    let turmas=await fetch("/turmas").then(r=>r.json())
+    let professores=await fetch("/professores").then(r=>r.json())
 
-    Object.keys(disciplinasStyle).forEach(d=>{
-        select.innerHTML+=`<option>${d}</option>`
+    let turmaSelect=document.getElementById("editTurma")
+    let profSelect=document.getElementById("editProfessor")
+
+    turmaSelect.innerHTML=""
+    profSelect.innerHTML=""
+
+    turmas.forEach(t=>{
+        turmaSelect.innerHTML+=`<option>${t.nome}</option>`
     })
+
+    professores.forEach(p=>{
+        profSelect.innerHTML+=`<option>${p.nome}</option>`
+    })
+}
+
+async function novaDisciplina(){
+
+    let nome=prompt("Nome da disciplina")
+    if(!nome) return
+
+    let cor=prompt("Cor da disciplina (#ff0000)")
+    if(!cor) return
+
+    let texto=prompt("Cor do texto (#000000 ou #ffffff)")
+    if(!texto) return
+
+    await fetch("/disciplinas",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({nome,cor,texto})
+    })
+
+    carregarDisciplinas()
+}
+
+function abrirDisciplina(){
+    document.getElementById("novaDisciplinaBox").style.display="block"
+}
+
+function fecharDisciplina(){
+    document.getElementById("novaDisciplinaBox").style.display="none"
+}
+
+async function guardarDisciplina(){
+
+    let nome=document.getElementById("discNome").value
+    let cor=document.getElementById("discCor").value
+    let texto=document.getElementById("discTexto").value
+
+    if(!nome) return
+
+    await fetch("/disciplinas",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({nome,cor,texto})
+    })
+
+    fecharDisciplina()
+    carregarDisciplinas()
+
 }
 
 carregarSelects()
 carregarHorarios()
 atualizarDisciplinas()
-carregarDisciplinasEditor()
+carregarDisciplinas()
+

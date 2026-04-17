@@ -38,31 +38,20 @@ app.delete("/turmas/:id",(req,res)=>{
 })
 
 // horários
-app.get("/horarios",(req,res)=>{
-    db.all("SELECT * FROM horarios",(e,r)=>res.json(r))
+app.get("/disciplinas",(req,res)=>{
+    db.all("SELECT * FROM disciplinas",(e,r)=>res.json(r))
 })
 
-app.post("/horarios",(req,res)=>{
+app.post("/disciplinas",(req,res)=>{
 
-    const {turma,professor,disciplina,dia,hora}=req.body
+    const {nome,cor,texto}=req.body
 
-    db.get(
-        "SELECT * FROM horarios WHERE dia=? AND hora=? AND turma=?",
-        [dia,hora,turma],
-        (err,row)=>{
-
-            if(row){
-                return res.status(400).json({erro:"Já existe aula neste horário"})
-            }
-
-            db.run(
-                "INSERT INTO horarios(turma,professor,disciplina,dia,hora) VALUES(?,?,?,?,?)",
-                [turma,professor,disciplina,dia,hora],
-                function(err){
-                    if(err) return res.status(500).json({error:err.message})
-                    res.json({ok:true,id:this.lastID})
-                }
-            )
+    db.run(
+        "INSERT INTO disciplinas(nome,cor,texto) VALUES(?,?,?)",
+        [nome,cor,texto],
+        function(err){
+            if(err) return res.status(500).json({error:err.message})
+            res.json({ok:true})
         }
     )
 })
@@ -89,6 +78,49 @@ app.delete("/horarios/:id",(req,res)=>{
         if(err) return res.status(500).send(err)
         res.send({ok:true})
     })
+})
+
+// disciplinas
+app.get("/disciplinas",(req,res)=>{
+    db.all("SELECT * FROM disciplinas",(e,r)=>res.json(r))
+})
+
+app.post("/disciplinas",(req,res)=>{
+
+    let {nome,cor,texto}=req.body
+
+    db.run(
+        "INSERT INTO disciplinas(nome,cor,texto) VALUES(?,?,?)",
+        [nome,cor,texto],
+        err=>{
+            if(err) return res.status(500).send(err)
+            res.send({ok:true})
+        }
+    )
+
+})
+
+// horários
+app.get("/horarios",(req,res)=>{
+    db.all("SELECT * FROM horarios",(e,r)=>{
+        if(e) return res.status(500).send(e)
+        res.json(r)
+    })
+})
+
+app.post("/horarios",(req,res)=>{
+
+    let {turma,professor,disciplina,dia,hora}=req.body
+
+    db.run(
+        "INSERT INTO horarios(turma,professor,disciplina,dia,hora) VALUES(?,?,?,?,?)",
+        [turma,professor,disciplina,dia,hora],
+        err=>{
+            if(err) return res.status(500).send(err)
+            res.send({ok:true})
+        }
+    )
+
 })
 
 app.listen(3000,()=>console.log("Servidor em http://localhost:3000"))
