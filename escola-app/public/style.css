@@ -1,149 +1,586 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  display: flex;
-  background: #f4f6f8;
-  color: #222; /* Cor do texto principal baseada no logo */
+/* ============================================================
+   HORÁRIO ESCOLAR — CSS Melhorado
+   Paleta: Ciano #00abc8 · Preto #1a1a1a · Branco #f9fafb
+   Fonte: 'Outfit' (display) + 'DM Sans' (corpo)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+/* ── VARIÁVEIS ─────────────────────────────────────────────── */
+:root {
+  --cyan:       #00abc8;
+  --cyan-dark:  #0090a8;
+  --cyan-light: #e0f7fb;
+  --black:      #1a1a1a;
+  --gray-900:   #1e2530;
+  --gray-800:   #2d3748;
+  --gray-200:   #e8ecf0;
+  --gray-100:   #f4f6f8;
+  --white:      #ffffff;
+  --green:      #2e9e4f;
+  --green-light:#e8f7ec;
+  --red:        #e53e3e;
+  --red-light:  #fff5f5;
+  --yellow:     #f6ad55;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.14);
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+
+  --menu-width: 240px;
+  --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Marca de água no fundo (símbolo mais claro) */
+/* ── RESET & BASE ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  background: var(--gray-100);
+  color: var(--black);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── MARCA DE ÁGUA (logo) ───────────────────────────────────── */
 body::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  
-  /* Substituir pela imagem do seu logo local se necessário */
-  background-image: url("logo-epbjc.png"); 
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: url("logo-epbjc.png");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 600px;
-  
-  opacity: 0.04; /* Ajustado para visibilidade subtil */
+  background-size: 500px;
+  opacity: 0.03;
   z-index: -1;
-}
-
-/* Marca de água da escola no canto inferior direito */
-body::after {
-  content: "";
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  
-  width: 250px;
-  height: 150px;
-  
-  background-image: url("https://www.inovinter.pt/wp-content/uploads/2019/09/header_epbjc.jpg");
-  background-size: contain;
-  background-repeat: no-repeat;
-  
-  opacity: 1;
   pointer-events: none;
 }
 
-/* MENU LATERAL - Usando o tom escuro do logótipo */
+/* Logo da escola canto inferior direito */
+body::after {
+  content: "";
+  position: fixed;
+  bottom: 24px; right: 24px;
+  width: 220px; height: 130px;
+  background-image: url("https://www.inovinter.pt/wp-content/uploads/2019/09/header_epbjc.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 10;
+  border-radius: var(--radius-sm);
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.12));
+}
+
+/* ── MENU LATERAL ───────────────────────────────────────────── */
 .menu {
-  width: 220px;
-  background: #1a1a1a; /* Preto suave do logo */
-  color: white;
+  width: var(--menu-width);
+  min-width: var(--menu-width);
+  background: var(--gray-900);
+  color: var(--white);
   height: 100vh;
-  padding: 20px;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  padding: 0;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+  overflow: hidden;
+  z-index: 100;
+}
+
+/* Cabeçalho do menu */
+.menu::before {
+  content: "📚 EscolaApp";
+  display: block;
+  padding: 28px 24px 20px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--cyan);
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 
 .menu a {
-  display: block;
-  color: #e0e0e0;
-  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255,255,255,0.72);
+  padding: 13px 24px;
   text-decoration: none;
-  margin-top: 5px;
-  border-radius: 5px;
-  transition: 0.3s;
+  font-size: 0.93rem;
+  font-weight: 500;
+  transition: background var(--transition), color var(--transition), padding-left var(--transition);
+  border-left: 3px solid transparent;
 }
 
 .menu a:hover {
-  background: #ffffff; /* Ciano do logo no hover */
-  color: rgb(35, 99, 28);
+  background: rgba(0,171,200,0.12);
+  color: var(--white);
+  border-left-color: var(--cyan);
+  padding-left: 28px;
 }
 
-/* CONTEÚDO */
+.menu a.active {
+  background: rgba(0,171,200,0.18);
+  color: var(--cyan);
+  border-left-color: var(--cyan);
+  font-weight: 600;
+}
+
+/* Separador no menu */
+.menu hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  margin: 8px 16px;
+}
+
+/* ── CONTEÚDO PRINCIPAL ─────────────────────────────────────── */
 .content {
   flex: 1;
-  padding: 40px;
+  padding: 40px 44px 80px;
+  max-width: 1200px;
+  overflow-x: hidden;
 }
 
-/* CARDS */
+/* Título de página */
+.content h2,
+.content h1 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.75rem;
+  color: var(--gray-900);
+  margin-bottom: 24px;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+.content h2::after,
+.content h1::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 48px; height: 4px;
+  background: var(--cyan);
+  border-radius: 2px;
+}
+
+.content h3 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--gray-800);
+  margin-bottom: 16px;
+}
+
+/* ── CARDS ──────────────────────────────────────────────────── */
 .card {
-  background: white;
-  padding: 25px;
-  margin-bottom: 25px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  border-top: 4px solid #00abc8; /* Detalhe em ciano no topo */
+  background: var(--white);
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border-top: 4px solid var(--cyan);
+  transition: box-shadow var(--transition), transform var(--transition);
+  animation: fadeSlideUp 0.35s ease both;
 }
 
-/* INPUTS */
-input {
-  padding: 10px;
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── INPUTS ─────────────────────────────────────────────────── */
+input,
+select,
+textarea {
+  padding: 10px 14px;
   margin-right: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  margin-bottom: 8px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--gray-100);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.93rem;
+  color: var(--black);
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  outline: none;
 }
 
-/* BOTÕES - Usando o branco como fundo e o verde como texto. */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--cyan);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(0,171,200,0.15);
+}
+
+input::placeholder {
+  color: #a0aab4;
+}
+
+/* Labels */
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* Grupos de formulário */
+.form-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+/* ── BOTÕES ─────────────────────────────────────────────────── */
 button {
-  padding: 10px 20px;
-  background: #ffffff; 
+  padding: 10px 22px;
+  background: var(--cyan);
   border: none;
-  color: rgb(59, 146, 50);
-  border-radius: 4px;
+  color: var(--white);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 2px 8px rgba(0,171,200,0.25);
 }
 
 button:hover {
-  background: #000000; /* Um tom de ciano mais fechado para o hover */
+  background: var(--cyan-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0,171,200,0.35);
 }
 
-/* TABELA */
+button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Botão secundário */
+button.btn-secondary {
+  background: var(--white);
+  color: var(--cyan);
+  border: 1.5px solid var(--cyan);
+  box-shadow: none;
+}
+
+button.btn-secondary:hover {
+  background: var(--cyan-light);
+  box-shadow: none;
+}
+
+/* Botão perigo */
+button.btn-danger,
+button[onclick*="elimin"],
+button[onclick*="remov"] {
+  background: transparent;
+  color: var(--red);
+  border: 1.5px solid var(--red);
+  box-shadow: none;
+}
+
+button.btn-danger:hover,
+button[onclick*="elimin"]:hover,
+button[onclick*="remov"]:hover {
+  background: var(--red-light);
+  transform: translateY(-1px);
+}
+
+/* Botão de editar */
+button.btn-edit,
+button[onclick*="edit"] {
+  background: transparent;
+  color: var(--green);
+  border: 1.5px solid var(--green);
+  box-shadow: none;
+}
+
+button.btn-edit:hover,
+button[onclick*="edit"]:hover {
+  background: var(--green-light);
+  transform: translateY(-1px);
+}
+
+/* ── TABELA ─────────────────────────────────────────────────── */
 table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background: white; /* Alterar cor do fundo dos horarios pares. 08:00, 10:00, etc... */
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 18px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  font-size: 0.9rem;
 }
 
 th, td {
-  border: 2px solid #030000; /* Alterar cor das bordas da tabela */
-  padding: 12px;
+  border: none;
+  border-bottom: 1px solid var(--gray-200);
+  border-right: 1px solid var(--gray-200);
+  padding: 13px 16px;
   text-align: left;
+  vertical-align: middle;
+}
+
+th:last-child, td:last-child {
+  border-right: none;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+thead tr {
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dark) 100%);
 }
 
 th {
-  background: #00abc8; /* Cabeçalho com a cor principal */
-  color: white; /* Alterar cor das letras do dias da semana. Seg, Ter, Qua, Qui e Sex */
+  color: var(--white);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  font-size: 0.9em;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
 }
 
-tr:nth-child(even) {
-  background-color: #ffffff; /* Alterar cor do fundo dos horarios impares. 09:00, 11:00, etc...  */
+/* Coluna de hora (primeira coluna) */
+td:first-child {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--cyan-dark);
+  background: var(--cyan-light);
+  white-space: nowrap;
+  text-align: center;
+  min-width: 70px;
 }
 
-.aula-card{
-padding:8px;
-border-radius:6px;
-color:#000;
-font-size:13px;
+tr:nth-child(odd) td:not(:first-child) {
+  background-color: var(--white);
 }
 
-.aula-card button{
-margin-top:4px;
-margin-right:4px;
-padding:3px 6px;
-font-size:11px;
+tr:nth-child(even) td:not(:first-child) {
+  background-color: #f8fdfe;
+}
+
+tbody tr {
+  transition: background var(--transition);
+}
+
+tbody tr:hover td {
+  background-color: var(--cyan-light) !important;
+}
+
+/* ── AULA CARD (célula da tabela de horário) ─────────────────── */
+.aula-card {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--black);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  background: linear-gradient(135deg, #e8f9fc 0%, #d0f2f7 100%);
+  border-left: 3px solid var(--cyan);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.aula-card:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
+}
+
+.aula-card strong {
+  display: block;
+  font-size: 0.87rem;
+  color: var(--gray-900);
+  margin-bottom: 2px;
+}
+
+.aula-card .professor {
+  font-size: 0.78rem;
+  color: #4a6670;
+}
+
+.aula-card button {
+  margin-top: 6px;
+  margin-right: 4px;
+  padding: 3px 9px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+/* ── BADGES / TAGS ──────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.badge-cyan   { background: var(--cyan-light); color: var(--cyan-dark); }
+.badge-green  { background: var(--green-light); color: var(--green); }
+.badge-yellow { background: #fef3e2; color: #b7791f; }
+.badge-red    { background: var(--red-light); color: var(--red); }
+
+/* ── MENSAGENS DE ESTADO ────────────────────────────────────── */
+.alert {
+  padding: 13px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-success {
+  background: var(--green-light);
+  color: #276749;
+  border-left: 4px solid var(--green);
+}
+
+.alert-error {
+  background: var(--red-light);
+  color: #9b2c2c;
+  border-left: 4px solid var(--red);
+}
+
+.alert-info {
+  background: var(--cyan-light);
+  color: var(--cyan-dark);
+  border-left: 4px solid var(--cyan);
+}
+
+/* ── LOADING ────────────────────────────────────────────────── */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  color: var(--cyan);
+  gap: 12px;
+  font-weight: 500;
+}
+
+.loading::before {
+  content: "";
+  width: 22px; height: 22px;
+  border: 3px solid var(--cyan-light);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── ESTADO VAZIO ───────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 56px 32px;
+  color: #8a9bb0;
+}
+
+.empty-state svg,
+.empty-state .icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: var(--gray-100); }
+::-webkit-scrollbar-thumb {
+  background: #c0ced8;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* ── SELEÇÕES ───────────────────────────────────────────────── */
+::selection {
+  background: rgba(0,171,200,0.2);
+  color: var(--black);
+}
+
+/* ── RESPONSIVO ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  body {
+    flex-direction: column;
+  }
+
+  .menu {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    position: relative;
+  }
+
+  .menu::before {
+    width: 100%;
+    padding: 0 0 8px;
+    border-bottom: none;
+    border-right: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .menu a {
+    padding: 8px 14px;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+
+  .menu a:hover {
+    padding-left: 14px;
+    border-bottom-color: var(--cyan);
+    border-left-color: transparent;
+  }
+
+  .content {
+    padding: 24px 20px 60px;
+  }
+
+  body::after {
+    display: none;
+  }
 }

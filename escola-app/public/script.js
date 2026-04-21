@@ -69,7 +69,7 @@ async function carregarHorarios(){
     let dados=await fetch("/horarios").then(r=>r.json())
     let tabela=document.getElementById("tabela")
 
-    let horas=["08:30 - 9:20","09:30 - 10:20","10:45 - 11:35","11:45 - 12:30","13:00 - 13:50","14:00 - 14:50","15:00 - 15:50","16:10 - 17:00","17:10 - 18:00"]
+    let horas=["08:30 - 9:20","09:30 - 10:20","10:45 - 11:35","11:45 - 12:30","12:45 - 13:50","14:00 - 14:50","15:00 - 15:50","16:10 - 17:00","17:10 - 18:00"]
     let dias=["Segunda","Terca","Quarta","Quinta","Sexta"]
 
     tabela.innerHTML=""
@@ -100,7 +100,7 @@ async function carregarHorarios(){
 }
             else{
 
-                if(h=="13:00 - 13:50" && d!="Sexta"){
+                if(h=="12:45 - 13:50" && d!="Sexta"){
                     linha+=`<td style="background:#eee">🍽️ Almoço</td>`
                 }else{
                     linha+="<td></td>"
