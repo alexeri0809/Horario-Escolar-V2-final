@@ -47,15 +47,6 @@ hora TEXT
 )
 `)
 
-db.run(`
-CREATE TABLE IF NOT EXISTS disciplinas(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-nome TEXT,
-cor TEXT,
-texto TEXT
-)
-`)
-
 })
 
 module.exports = db

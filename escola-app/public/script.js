@@ -187,7 +187,7 @@ async function addHorario(){
     }
 
     if(hora=="13:00 - 13:50" && dia!="Sexta"){
-        alert("⛔ Hora de almoço! Não é possível adicionar aulas às 13:00 de Segunda a Quinta.")
+        alert("⛔ Hora d    e almoço! Não é possível adicionar aulas às 13:00 de Segunda a Quinta.")
         return
     }
 
@@ -206,25 +206,16 @@ async function carregarDisciplinas(){
 
     let select=document.getElementById("disciplina")
     let selectEdit=document.getElementById("editDisciplina")
-    let nomesUsados = []
-
-disciplinas.forEach(d=>{
-
-    if(nomesUsados.includes(d.nome)) return
-    nomesUsados.push(d.nome)
-
-    if(select)
-        select.innerHTML+=`<option>${d.nome}</option>`
-
-    if(selectEdit)
-        selectEdit.innerHTML+=`<option>${d.nome}</option>`
-
-})
 
     if(select) select.innerHTML=""
     if(selectEdit) selectEdit.innerHTML=""
 
+    let nomesUsados=[]
+
     disciplinas.forEach(d=>{
+
+        if(nomesUsados.includes(d.nome)) return
+        nomesUsados.push(d.nome)
 
         if(select)
             select.innerHTML+=`<option>${d.nome}</option>`
