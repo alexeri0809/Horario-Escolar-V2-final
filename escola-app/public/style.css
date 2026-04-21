@@ -102,7 +102,7 @@ body::after {
 
 /* Cabeçalho do menu */
 .menu::before {
-  content: "📚 EscolaApp";
+  content: "📚 Bento de Jesus Caraça";
   display: block;
   padding: 28px 24px 20px;
   font-family: 'Outfit', sans-serif;
