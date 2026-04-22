@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="style.css">
@@ -8,71 +8,82 @@
 <body>
 
 <div class="menu">
-<a href="index.html">Dashboard</a>
-<a href="professores.html">Professores</a>
-<a href="turmas.html">Turmas</a>
-<a href="horarios.html">Horários</a>
+  <div id="user-info"></div>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:10px 18px 6px;">
+  <a href="index.html">🏠 Dashboard</a>
+  <a href="horarios.html">📅 Horários</a>
+  <a href="professores.html" data-role="professor,diretor">👨‍🏫 Professores</a>
+  <a href="turmas.html" class="active" data-role="diretor">🎓 Turmas</a>
+  <a href="disponibilidade.html" data-role="professor">🗓️ Disponibilidade</a>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 18px;">
+  <a href="#" onclick="logout(); return false;" style="color:rgba(248,113,113,0.7);">🚪 Sair</a>
 </div>
 
 <div class="content">
-<h1>🎓 Turmas</h1>
+  <h1>🎓 Turmas</h1>
 
-<div class="card">
-<input id="nome" placeholder="Nome da turma">
-<button onclick="addTurma()">Adicionar</button>
+  <div class="card" data-role="diretor">
+    <h3>Adicionar Turma</h3>
+    <div class="form-group">
+      <input id="nome" placeholder="Nome da turma">
+      <button onclick="addTurma()">Adicionar</button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Turma</th>
+        <th data-role="diretor">Ações</th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
 </div>
 
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>Turma</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="lista"></tbody>
-</table>
-
-</div>
-
+<script src="auth.js"></script>
 <script>
-async function carregar(){
-    let r=await fetch("/turmas")
-    let dados=await r.json()
-    let lista=document.getElementById("lista")
-    lista.innerHTML=""
-    dados.forEach(t=>{
-        lista.innerHTML+=`
-        <tr>
-        <td>${t.id}</td>
-        <td>${t.nome}</td>
-        <td>
-        <button onclick="apagarTurma(${t.id})">❌</button>
-        </td>
-        </tr>
-        `
-    })
-}
+  let cargoAtual = ''
 
-async function addTurma(){
-    let nome=document.getElementById("nome").value
-    if(!nome) return
-    await fetch("/turmas",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({nome})})
-    document.getElementById("nome").value=""
+  ;(async () => {
+    const user = await requireLogin()
+    if (!user) return
+    cargoAtual = user.cargo
+    applyRole(user)
     carregar()
-}
+  })()
 
-async function apagarTurma(id){
-    let r=await fetch("/turmas/"+id,{
-        method:"DELETE",
-        headers: {"Content-Type":"application/json"}
+  async function carregar() {
+    const r = await fetch("/turmas")
+    const dados = await r.json()
+    const lista = document.getElementById("lista")
+    lista.innerHTML = ""
+
+    dados.forEach(t => {
+      const acoes = cargoAtual === 'diretor'
+        ? `<td><button onclick="apagarTurma(${t.id})" style="background:transparent;color:var(--red-600);border:1.5px solid var(--red-200);box-shadow:none;font-size:0.78rem;padding:6px 14px;">❌ Remover</button></td>`
+        : ''
+      lista.innerHTML += `<tr><td>${t.id}</td><td><strong>${t.nome}</strong></td>${acoes}</tr>`
     })
-    let res=await r.json()
-    if(res.ok) carregar()
-    else alert("Erro ao apagar: "+res.error)
-}
+  }
 
-carregar()
+  async function addTurma() {
+    const nome = document.getElementById("nome").value.trim()
+    if (!nome) return
+    const r = await fetch("/turmas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nome }) })
+    if (!r.ok) { const e = await r.json(); alert("Erro: " + e.error); return }
+    document.getElementById("nome").value = ""
+    carregar()
+  }
+
+  async function apagarTurma(id) {
+    if (!confirm("Tens a certeza?")) return
+    const r = await fetch("/turmas/" + id, { method: "DELETE" })
+    const res = await r.json()
+    if (res.ok) carregar()
+    else alert("Erro: " + res.error)
+  }
 </script>
 
 </body>

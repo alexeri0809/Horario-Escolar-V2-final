@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="style.css">
@@ -8,16 +8,55 @@
 <body>
 
 <div class="menu">
-<a href="index.html">Dashboard</a>
-<a href="professores.html">Professores</a>
-<a href="turmas.html">Turmas</a>
-<a href="horarios.html">Horários</a>
+  <div id="user-info"></div>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:10px 18px 6px;">
+  <a href="index.html" class="active">🏠 Dashboard</a>
+  <a href="horarios.html">📅 Horários</a>
+  <a href="professores.html" data-role="professor,diretor">👨‍🏫 Professores</a>
+  <a href="turmas.html" data-role="diretor">🎓 Turmas</a>
+  <a href="disponibilidade.html" data-role="professor">🗓️ Disponibilidade</a>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 18px;">
+  <a href="#" onclick="logout(); return false;" style="color:rgba(248,113,113,0.7);">🚪 Sair</a>
 </div>
 
 <div class="content">
-<h1>Painel Escolar</h1>
-<p>Bem-vindo ao sistema de gestão de horários.</p>
+  <h1>Painel Escolar</h1>
+
+  <div class="card">
+    <h3>👋 Bem-vindo ao sistema de gestão de horários</h3>
+    <p style="color:var(--slate-500);font-size:0.875rem;margin-top:4px;">Usa o menu lateral para navegar entre as secções disponíveis.</p>
+  </div>
+
+  <div class="card" data-role="diretor" style="border-top-color:var(--amber-500)">
+    <h3>🏫 Painel do Diretor</h3>
+    <p style="color:var(--slate-500);font-size:0.875rem;margin-top:4px;">
+      Tens acesso total: gerir professores, turmas, disciplinas, horários e ver disponibilidades.
+    </p>
+  </div>
+
+  <div class="card" data-role="professor" style="border-top-color:var(--green-500)">
+    <h3>🧑‍🏫 Painel do Professor</h3>
+    <p style="color:var(--slate-500);font-size:0.875rem;margin-top:4px;">
+      Podes consultar os horários e definir a tua disponibilidade para que o diretor possa atribuir aulas.
+    </p>
+  </div>
+
+  <div class="card" data-role="aluno" style="border-top-color:var(--teal-500)">
+    <h3>🎒 Painel do Aluno</h3>
+    <p style="color:var(--slate-500);font-size:0.875rem;margin-top:4px;">
+      Podes consultar os horários escolares.
+    </p>
+  </div>
 </div>
+
+<script src="auth.js"></script>
+<script>
+  (async () => {
+    const user = await requireLogin()
+    if (!user) return
+    applyRole(user)
+  })()
+</script>
 
 </body>
 </html>

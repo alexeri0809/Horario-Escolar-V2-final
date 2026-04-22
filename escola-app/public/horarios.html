@@ -1,127 +1,439 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="style.css">
 <title>Horários</title>
+<style>
+  /* Editor modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.55);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 28px 32px;
+    width: 440px;
+    max-width: 95%;
+    animation: slideUp 0.25s var(--ease-spring);
+    position: relative;
+    border-top: 3px solid var(--teal-500);
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+
+  .modal h3 { font-size: 1rem; font-weight: 800; color: var(--slate-900); margin-bottom: 20px; }
+
+  .modal select, .modal input {
+    width: 100%;
+    display: block;
+    margin: 0 0 12px 0;
+  }
+
+  .modal-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .modal-actions button { flex: 1; }
+
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--slate-100); border: none; border-radius: 8px;
+    width: 30px; height: 30px; cursor: pointer; font-size: 1rem;
+    color: var(--slate-500); display: flex; align-items: center; justify-content: center;
+    box-shadow: none; padding: 0; transition: all var(--transition);
+  }
+  .modal-close:hover { background: var(--slate-200); transform: none; box-shadow: none; }
+
+  /* Aula card */
+  .aula-card {
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--teal-500);
+    box-shadow: var(--shadow-xs);
+    transition: transform 0.15s var(--ease-spring), box-shadow var(--transition);
+    margin-bottom: 4px;
+  }
+  .aula-card:hover { transform: scale(1.02); box-shadow: var(--shadow); }
+  .aula-card strong { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 1px; }
+  .aula-card .info  { font-size: 0.73rem; opacity: 0.75; }
+  .aula-card .btns  { display: flex; gap: 4px; margin-top: 6px; }
+  .aula-card .btns button { padding: 3px 8px; font-size: 0.7rem; border-radius: 5px; box-shadow: none; }
+
+  .aviso-bar {
+    background: var(--amber-50);
+    border: 1px solid var(--amber-100);
+    border-left: 4px solid var(--amber-500);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 0.84rem;
+    color: var(--amber-700);
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .aviso-bar.show { display: block; }
+
+  .err-bar {
+    background: var(--red-50);
+    border: 1px solid var(--red-100);
+    border-left: 4px solid var(--red-500);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 0.84rem;
+    color: var(--red-600);
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .err-bar.show { display: block; }
+
+  /* Disciplina box */
+  #novaDisciplinaBox { margin-top: 16px; }
+</style>
 </head>
 <body>
 
 <div class="menu">
-<a href="index.html">Dashboard</a>
-<a href="professores.html">Professores</a>
-<a href="turmas.html">Turmas</a>
-<a href="horarios.html">Horários</a>
+  <div id="user-info"></div>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:10px 18px 6px;">
+  <a href="index.html">🏠 Dashboard</a>
+  <a href="horarios.html" class="active">📅 Horários</a>
+  <a href="professores.html" data-role="professor,diretor">👨‍🏫 Professores</a>
+  <a href="turmas.html" data-role="diretor">🎓 Turmas</a>
+  <a href="disponibilidade.html" data-role="professor">🗓️ Disponibilidade</a>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 18px;">
+  <a href="#" onclick="logout(); return false;" style="color:rgba(248,113,113,0.7);">🚪 Sair</a>
 </div>
 
 <div class="content">
-<h1>📅 Horários</h1>
+  <h1>📅 Horários</h1>
 
-<div class="card">
-<select id="turma"></select>
-<select id="professor"></select>
-<select id="dia">
-<option>Segunda</option>
-<option>Terça</option>
-<option>Quarta</option>
-<option>Quinta</option>
-<option>Sexta</option>
-</select>
-<select id="hora">
-<option>08:30 - 9:20</option>
-<option>09:30 - 10:20</option>
-<option>10:45 - 11:35</option>
-<option>11:45 - 12:30</option>
-<option>12:45 - 13:50</option>
-<option>14:00 - 14:50</option>
-<option>15:00 - 15:50</option>
-<option>16:10 - 17:00</option>
-<option>17:10 - 18:00</option>
-</select>
+  <!-- Painel só para o DIRETOR -->
+  <div class="card" data-role="diretor">
+    <h3>Adicionar Aula</h3>
 
-<select id="disciplina">
-<option>MAT</option>
-<option>PORT</option>
-<option>ING</option>
-<option>PSI</option>
-<option>FQ</option>
-<option>EF</option>
-<option>SO</option>
-<option>AC</option>
-<option>RC</option>
-<option>FRA</option>
-<option>AI</option>
-</select>
-<button onclick="addHorario()">Adicionar</button>
-<button onclick="abrirDisciplina()">+ Disciplina</button>
-<div id="novaDisciplinaBox" style="display:none" class="card">
+    <div class="aviso-bar" id="avisoBarra"></div>
+    <div class="err-bar"   id="errBarra"></div>
 
-<h3>Nova Disciplina</h3>
+    <div class="form-group">
+      <div>
+        <label>Turma</label>
+        <select id="turma"></select>
+      </div>
+      <div>
+        <label>Professor</label>
+        <select id="professor"></select>
+      </div>
+      <div>
+        <label>Dia</label>
+        <select id="dia">
+          <option>Segunda</option><option>Terça</option><option>Quarta</option>
+          <option>Quinta</option><option>Sexta</option>
+        </select>
+      </div>
+      <div>
+        <label>Hora</label>
+        <select id="hora">
+          <option>08:30 - 9:20</option><option>09:30 - 10:20</option>
+          <option>10:45 - 11:35</option><option>11:45 - 12:30</option>
+          <option>12:45 - 13:50</option><option>14:00 - 14:50</option>
+          <option>15:00 - 15:50</option><option>16:10 - 17:00</option>
+          <option>17:10 - 18:00</option>
+        </select>
+      </div>
+      <div>
+        <label>Disciplina</label>
+        <select id="disciplina"></select>
+      </div>
+      <div style="align-self:flex-end">
+        <button onclick="addHorario()">+ Adicionar</button>
+      </div>
+      <div style="align-self:flex-end">
+        <button onclick="toggleDisciplinaBox()" class="btn-secondary">+ Disciplina</button>
+      </div>
+    </div>
 
-<input id="discNome" placeholder="Nome da disciplina">
+    <div id="novaDisciplinaBox" class="card" style="display:none;margin-bottom:0">
+      <h3>Nova Disciplina</h3>
+      <div class="form-group">
+        <div>
+          <label>Nome</label>
+          <input id="discNome" placeholder="Ex: MAT">
+        </div>
+        <div>
+          <label>Cor de fundo</label>
+          <input type="color" id="discCor" value="#0891b2">
+        </div>
+        <div>
+          <label>Cor do texto</label>
+          <select id="discTexto">
+            <option value="#ffffff">Branco</option>
+            <option value="#000000">Preto</option>
+          </select>
+        </div>
+        <div style="align-self:flex-end">
+          <button onclick="guardarDisciplina()">Guardar</button>
+        </div>
+        <div style="align-self:flex-end">
+          <button onclick="toggleDisciplinaBox()" class="btn-secondary">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<label>Cor da disciplina</label>
-<input type="color" id="discCor">
-
-<label>Cor do texto</label>
-<select id="discTexto">
-<option value="#ffffff">Branco</option>
-<option value="#000000">Preto</option>
-</select>
-
-<button onclick="guardarDisciplina()">Guardar</button>
-<button onclick="fecharDisciplina()">Cancelar</button>
-
+  <table>
+    <thead>
+      <tr>
+        <th>Hora</th>
+        <th>Segunda</th><th>Terça</th><th>Quarta</th><th>Quinta</th><th>Sexta</th>
+      </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+  </table>
 </div>
+
+<!-- Modal de edição (só para diretor) -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharEditor()">✕</button>
+    <h3>✏️ Editar Aula</h3>
+    <label>Turma</label>
+    <select id="editTurma"></select>
+    <label>Professor</label>
+    <select id="editProfessor"></select>
+    <label>Dia</label>
+    <select id="editDia">
+      <option>Segunda</option><option>Terça</option><option>Quarta</option>
+      <option>Quinta</option><option>Sexta</option>
+    </select>
+    <label>Hora</label>
+    <select id="editHora">
+      <option>08:30 - 9:20</option><option>09:30 - 10:20</option>
+      <option>10:45 - 11:35</option><option>11:45 - 12:30</option>
+      <option>12:45 - 13:50</option><option>14:00 - 14:50</option>
+      <option>15:00 - 15:50</option><option>16:10 - 17:00</option>
+      <option>17:10 - 18:00</option>
+    </select>
+    <label>Disciplina</label>
+    <select id="editDisciplina"></select>
+    <div class="modal-actions">
+      <button onclick="guardarEdicao()">Guardar</button>
+      <button onclick="fecharEditor()" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
 </div>
 
-<table>
-<thead>
-<tr>
-<th>Hora</th>
-<th>Seg</th>
-<th>Ter</th>
-<th>Qua</th>
-<th>Qui</th>
-<th>Sex</th>
-</tr>
-</thead>
-<tbody id="tabela"></tbody>
-</table>
+<script src="auth.js"></script>
+<script>
+const HORAS = ['08:30 - 9:20','09:30 - 10:20','10:45 - 11:35','11:45 - 12:30','12:45 - 13:50','14:00 - 14:50','15:00 - 15:50','16:10 - 17:00','17:10 - 18:00']
+const DIAS  = ['Segunda','Terça','Quarta','Quinta','Sexta']
 
-</div>
+let cargoAtual   = ''
+let todosProfs   = []
+let todasTurmas  = []
+let todasDisc    = []
+let editandoId   = null
 
-<script src="script.js"></script>
-<div id="editarBox" class="card" style="display:none; position:fixed; top:20%; left:40%; z-index:1000;">
-<h3>Editar Aula</h3>
+;(async () => {
+  const user = await requireLogin()
+  if (!user) return
+  cargoAtual = user.cargo
+  applyRole(user)
+  await carregarTudo()
+})()
 
-<select id="editTurma"></select>
-<select id="editProfessor"></select>
+async function carregarTudo() {
+  const [profs, turmas, discs, horarios] = await Promise.all([
+    fetch('/professores').then(r => r.json()),
+    fetch('/turmas').then(r => r.json()),
+    fetch('/disciplinas').then(r => r.json()),
+    fetch('/horarios').then(r => r.json()),
+  ])
 
-<select id="editDia">
-<option>Segunda</option>
-<option>Terça</option>
-<option>Quarta</option>
-<option>Quinta</option>
-<option>Sexta</option>
-</select>
+  todosProfs  = profs
+  todasTurmas = turmas
+  todasDisc   = discs
 
-<select id="editHora">
-<option>08:30 - 9:20</option>
-<option>09:30 - 10:20</option>
-<option>10:45 - 11:35</option>
-<option>11:45 - 12:30</option>
-<option>12:45 - 13:50</option>
-<option>14:00 - 14:50</option>
-<option>15:00 - 15:50</option>
-<option>16:10 - 17:00</option>
-<option>17:10 - 18:00</option>
-</select>
+  // Preenche selects
+  preencherSelect('turma',     turmas,  'nome')
+  preencherSelect('professor', profs,   'nome')
+  preencherSelect('editTurma',     turmas, 'nome')
+  preencherSelect('editProfessor', profs,  'nome')
+  preencherDiscSelect('disciplina',     discs)
+  preencherDiscSelect('editDisciplina', discs)
 
-<select id="editDisciplina"></select>
+  renderTabela(horarios, discs)
+}
 
-<button onclick="guardarEdicao()">Guardar</button>
-<button onclick="fecharEditor()">Cancelar</button>
-</div>
+function preencherSelect(id, dados, campo) {
+  const sel = document.getElementById(id)
+  if (!sel) return
+  sel.innerHTML = dados.map(d => `<option value="${d[campo]}">${d[campo]}</option>`).join('')
+}
+
+function preencherDiscSelect(id, discs) {
+  const sel = document.getElementById(id)
+  if (!sel) return
+  sel.innerHTML = discs.map(d => `<option value="${d.nome}">${d.nome}</option>`).join('')
+}
+
+function renderTabela(horarios, discs) {
+  const tabela = document.getElementById('tabela')
+  tabela.innerHTML = ''
+
+  HORAS.forEach(hora => {
+    const tr = document.createElement('tr')
+    tr.innerHTML = `<td>${hora}</td>`
+
+    DIAS.forEach(dia => {
+      const aulas = horarios.filter(h => h.dia === dia && h.hora === hora)
+      let html = ''
+
+      aulas.forEach(aula => {
+        const disc  = discs.find(d => d.nome === aula.disciplina)
+        const bg    = disc ? disc.cor    : 'var(--teal-100)'
+        const color = disc ? disc.texto  : 'var(--teal-900)'
+
+        const btns = cargoAtual === 'diretor'
+          ? `<div class="btns">
+               <button onclick="abrirEditor(${aula.id},'${aula.turma}','${aula.professor}','${aula.dia}','${aula.hora}','${aula.disciplina}')" 
+                 style="background:transparent;color:#16a34a;border:1.5px solid #86efac;">✏️</button>
+               <button onclick="apagarAula(${aula.id})"
+                 style="background:transparent;color:var(--red-600);border:1.5px solid var(--red-200);">❌</button>
+             </div>`
+          : ''
+
+        html += `
+          <div class="aula-card" style="background:${bg};color:${color};border-left-color:${color}">
+            <strong>${aula.disciplina}</strong>
+            <div class="info">${aula.professor}</div>
+            <div class="info">${aula.turma}</div>
+            ${btns}
+          </div>`
+      })
+
+      tr.innerHTML += `<td>${html}</td>`
+    })
+
+    tabela.appendChild(tr)
+  })
+}
+
+async function addHorario() {
+  const turma      = document.getElementById('turma').value
+  const professor  = document.getElementById('professor').value
+  const dia        = document.getElementById('dia').value
+  const hora       = document.getElementById('hora').value
+  const disciplina = document.getElementById('disciplina').value
+
+  if (!turma || !professor || !disciplina) return
+
+  document.getElementById('errBarra').classList.remove('show')
+  document.getElementById('avisoBarra').classList.remove('show')
+
+  const r = await fetch('/horarios', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ turma, professor, disciplina, dia, hora })
+  })
+  const data = await r.json()
+
+  if (!r.ok) {
+    document.getElementById('errBarra').textContent = data.error
+    document.getElementById('errBarra').classList.add('show')
+    return
+  }
+
+  if (data.aviso) {
+    document.getElementById('avisoBarra').textContent = data.aviso
+    document.getElementById('avisoBarra').classList.add('show')
+    setTimeout(() => document.getElementById('avisoBarra').classList.remove('show'), 5000)
+  }
+
+  await carregarTudo()
+}
+
+async function apagarAula(id) {
+  if (!confirm('Tens a certeza que queres remover esta aula?')) return
+  await fetch('/horarios/' + id, { method: 'DELETE' })
+  await carregarTudo()
+}
+
+function abrirEditor(id, turma, professor, dia, hora, disciplina) {
+  editandoId = id
+  document.getElementById('editTurma').value     = turma
+  document.getElementById('editProfessor').value = professor
+  document.getElementById('editDia').value       = dia
+  document.getElementById('editHora').value      = hora
+  document.getElementById('editDisciplina').value = disciplina
+  document.getElementById('editModal').classList.add('open')
+}
+
+function fecharEditor() {
+  document.getElementById('editModal').classList.remove('open')
+  editandoId = null
+}
+
+async function guardarEdicao() {
+  const turma      = document.getElementById('editTurma').value
+  const professor  = document.getElementById('editProfessor').value
+  const dia        = document.getElementById('editDia').value
+  const hora       = document.getElementById('editHora').value
+  const disciplina = document.getElementById('editDisciplina').value
+
+  const r = await fetch('/horarios/' + editandoId, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ turma, professor, disciplina, dia, hora })
+  })
+  const data = await r.json()
+
+  if (!r.ok) {
+    alert('Erro: ' + data.error)
+    return
+  }
+
+  fecharEditor()
+
+  if (data.aviso) {
+    document.getElementById('avisoBarra').textContent = data.aviso
+    document.getElementById('avisoBarra').classList.add('show')
+    setTimeout(() => document.getElementById('avisoBarra').classList.remove('show'), 5000)
+  }
+
+  await carregarTudo()
+}
+
+function toggleDisciplinaBox() {
+  const box = document.getElementById('novaDisciplinaBox')
+  box.style.display = box.style.display === 'none' ? 'block' : 'none'
+}
+
+async function guardarDisciplina() {
+  const nome  = document.getElementById('discNome').value.trim()
+  const cor   = document.getElementById('discCor').value
+  const texto = document.getElementById('discTexto').value
+  if (!nome) return
+  await fetch('/disciplinas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, cor, texto })
+  })
+  document.getElementById('discNome').value = ''
+  document.getElementById('novaDisciplinaBox').style.display = 'none'
+  await carregarTudo()
+}
+</script>
+
 </body>
 </html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Conta — Escola Bento de Jesus Caraça</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan:       #00abc8;
+      --cyan-dark:  #0090a8;
+      --cyan-light: #e0f7fb;
+      --gray-900:   #1e2530;
+      --gray-200:   #e8ecf0;
+      --white:      #ffffff;
+      --red:        #e53e3e;
+      --green:      #2e9e4f;
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(0,171,200,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 80%, rgba(0,144,168,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,171,200,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,171,200,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      padding: 24px;
+    }
+
+    .school-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .school-logo {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dark) 100%);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      font-size: 1.8rem;
+      box-shadow: 0 8px 28px rgba(0,171,200,0.35);
+    }
+
+    .school-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--white);
+    }
+
+    .school-header p {
+      font-size: 0.83rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 4px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 32px 28px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+      animation: slideUp 0.4s ease both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card h2 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--white);
+      margin-bottom: 22px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 7px;
+    }
+
+    .input-wrapper { position: relative; }
+
+    .input-icon {
+      position: absolute;
+      left: 13px; top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.25);
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 11px 14px 11px 40px;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+      outline: none;
+      appearance: none;
+    }
+
+    select option { background: var(--gray-900); color: var(--white); }
+
+    input::placeholder { color: rgba(255,255,255,0.18); }
+
+    input:focus, select:focus {
+      border-color: var(--cyan);
+      background: rgba(0,171,200,0.08);
+      box-shadow: 0 0 0 3px rgba(0,171,200,0.15);
+    }
+
+    /* Seletor de cargo com botões visuais */
+    .cargo-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .cargo-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      color: rgba(255,255,255,0.5);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .cargo-btn .emoji { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+
+    .cargo-btn:hover {
+      background: rgba(0,171,200,0.08);
+      border-color: rgba(0,171,200,0.3);
+      color: rgba(255,255,255,0.8);
+    }
+
+    .cargo-btn.selected {
+      background: rgba(0,171,200,0.15);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .cargo-btn.bloqueado {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Input hidden para o cargo */
+    #cargoInput { display: none; }
+
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alert-error {
+      background: rgba(229,62,62,0.12);
+      border: 1px solid rgba(229,62,62,0.3);
+      color: #fc8181;
+    }
+
+    .alert-success {
+      background: rgba(46,158,79,0.12);
+      border: 1px solid rgba(46,158,79,0.3);
+      color: #68d391;
+    }
+
+    .alert.show { display: flex; }
+
+    .btn-register {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dark) 100%);
+      border: none;
+      color: var(--white);
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: 0 4px 16px rgba(0,171,200,0.35);
+      margin-top: 6px;
+    }
+
+    .btn-register:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,171,200,0.45);
+    }
+
+    .btn-register.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .link-login {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .link-login a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+
+    .link-login a:hover { color: #00d4f0; }
+
+    .nota-diretor {
+      background: rgba(246,173,85,0.08);
+      border: 1px solid rgba(246,173,85,0.2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: rgba(246,173,85,0.7);
+      margin-bottom: 16px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="school-header">
+    <div class="school-logo">📚</div>
+    <h1>Bento de Jesus Caraça</h1>
+    <p>Criar nova conta</p>
+  </div>
+
+  <div class="card">
+    <h2>Registo</h2>
+
+    <div class="alert alert-error" id="erro">
+      <span>⚠️</span><span id="erroMsg"></span>
+    </div>
+    <div class="alert alert-success" id="sucesso">
+      <span>✅</span><span id="sucessoMsg"></span>
+    </div>
+
+    <div class="form-group">
+      <label>Nome completo</label>
+      <div class="input-wrapper">
+        <span class="input-icon">✏️</span>
+        <input type="text" id="nome" placeholder="O teu nome">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Nome de utilizador</label>
+      <div class="input-wrapper">
+        <span class="input-icon">👤</span>
+        <input type="text" id="username" placeholder="Escolhe um username" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrapper">
+        <span class="input-icon">🔒</span>
+        <input type="password" id="password" placeholder="Mínimo 4 caracteres">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Tipo de conta</label>
+      <div class="nota-diretor" id="notaDiretor">
+        🔐 Conta de diretor só pode ser criada por um diretor autenticado.
+      </div>
+      <div class="cargo-selector">
+        <div class="cargo-btn" id="btn-aluno" onclick="selecionarCargo('aluno')">
+          <span class="emoji">🎒</span>
+          Aluno
+        </div>
+        <div class="cargo-btn" id="btn-professor" onclick="selecionarCargo('professor')">
+          <span class="emoji">🧑‍🏫</span>
+          Professor
+        </div>
+        <div class="cargo-btn bloqueado" id="btn-diretor" onclick="selecionarCargo('diretor')">
+          <span class="emoji">🏫</span>
+          Diretor
+        </div>
+      </div>
+      <input type="hidden" id="cargoInput">
+    </div>
+
+    <button class="btn-register" id="btnRegister" onclick="registar()">
+      Criar conta
+    </button>
+
+    <div class="link-login">
+      Já tens conta? <a href="/login.html">Entrar</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let cargoSelecionado = ''
+
+  // Verifica se o utilizador atual é diretor (para desbloquear a opção)
+  async function verificarSessao() {
+    try {
+      const r = await fetch('/api/me')
+      if (r.ok) {
+        const user = await r.json()
+        if (user.cargo === 'diretor') {
+          // Desbloqueia a opção de criar diretor
+          const btnDiretor = document.getElementById('btn-diretor')
+          btnDiretor.classList.remove('bloqueado')
+          document.getElementById('notaDiretor').style.display = 'none'
+        }
+      }
+    } catch {}
+  }
+
+  verificarSessao()
+
+  function selecionarCargo(cargo) {
+    cargoSelecionado = cargo
+    document.querySelectorAll('.cargo-btn:not(.bloqueado)').forEach(b => b.classList.remove('selected'))
+    document.getElementById('btn-' + cargo).classList.add('selected')
+    document.getElementById('cargoInput').value = cargo
+  }
+
+  async function registar() {
+    const nome = document.getElementById('nome').value.trim()
+    const username = document.getElementById('username').value.trim()
+    const password = document.getElementById('password').value
+    const cargo = cargoSelecionado
+
+    const erro = document.getElementById('erro')
+    const erroMsg = document.getElementById('erroMsg')
+    const sucesso = document.getElementById('sucesso')
+    const btn = document.getElementById('btnRegister')
+
+    erro.classList.remove('show')
+    sucesso.classList.remove('show')
+
+    if (!nome || !username || !password) {
+      erroMsg.textContent = 'Preenche todos os campos.'
+      erro.classList.add('show')
+      return
+    }
+    if (!cargo) {
+      erroMsg.textContent = 'Escolhe o tipo de conta.'
+      erro.classList.add('show')
+      return
+    }
+
+    btn.classList.add('loading')
+    btn.textContent = 'A criar conta...'
+
+    try {
+      const r = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, username, password, cargo })
+      })
+
+      const data = await r.json()
+
+      if (!r.ok) {
+        erroMsg.textContent = data.error || 'Erro ao criar conta.'
+        erro.classList.add('show')
+        btn.classList.remove('loading')
+        btn.textContent = 'Criar conta'
+        return
+      }
+
+      document.getElementById('sucessoMsg').textContent = `Conta criada com sucesso! A redirecionar...`
+      sucesso.classList.add('show')
+
+      setTimeout(() => {
+        window.location.href = '/login.html'
+      }, 1800)
+
+    } catch {
+      erroMsg.textContent = 'Erro de ligação ao servidor.'
+      erro.classList.add('show')
+      btn.classList.remove('loading')
+      btn.textContent = 'Criar conta'
+    }
+  }
+</script>
+
+</body>
+</html>

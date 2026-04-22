@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disponibilidade — Horários</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ── Disponibilidade-specific styles ───────────────────────── */
+  .dispon-wrap {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--slate-200);
+    overflow: hidden;
+  }
+
+  .dispon-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal-500), var(--teal-300));
+  }
+
+  .legend-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 20px 24px 0;
+  }
+
+  .legend-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--slate-500);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+
+  .mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--slate-200);
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--slate-50);
+    color: var(--slate-500);
+    box-shadow: none;
+  }
+  .mode-btn:hover { border-color: var(--teal-400); color: var(--slate-700); transform: none; box-shadow: none; }
+  .mode-btn.active.m-avail   { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
+  .mode-btn.active.m-maybe   { border-color: #b45309; color: #b45309; background: #fffbeb; }
+  .mode-btn.active.m-unavail { border-color: var(--red-600); color: var(--red-600); background: var(--red-50); }
+  .mode-btn.active.m-clear   { border-color: var(--slate-400); color: var(--slate-600); background: var(--slate-100); }
+
+  .mode-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .md-avail   { background: #22c55e; }
+  .md-maybe   { background: #fbbf24; }
+  .md-unavail { background: var(--red-500); }
+  .md-clear   { background: var(--slate-300); }
+
+  .table-wrap {
+    overflow-x: auto;
+    padding: 16px 24px 0;
+  }
+
+  .grid-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 580px;
+    margin: 0;
+    box-shadow: none;
+    border: 1.5px solid var(--slate-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .grid-table thead tr { background: linear-gradient(90deg, var(--teal-700), var(--teal-500)); }
+  .grid-table thead th { color: rgba(255,255,255,0.92); font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 14px 10px; text-align: center; border: none; }
+  .grid-table thead th.hora-th { text-align: left; padding-left: 16px; min-width: 130px; }
+
+  .grid-table tbody tr { border-bottom: 1px solid var(--slate-100); }
+  .grid-table tbody tr:last-child { border-bottom: none; }
+
+  .hora-td {
+    font-size: 0.78rem; font-weight: 700; color: var(--teal-700);
+    padding: 8px 10px 8px 16px;
+    white-space: nowrap;
+    background: var(--teal-50);
+    border-right: 1.5px solid var(--teal-100);
+    border-bottom: 1px solid var(--teal-100);
+  }
+
+  .slot-td { padding: 4px; vertical-align: middle; min-width: 96px; }
+
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 700;
+    transition: all 0.13s;
+    border: 2px solid transparent;
+    background: transparent;
+    color: transparent;
+    user-select: none;
+    letter-spacing: 0.03em;
+  }
+  .cell:hover { background: var(--teal-50); border-color: var(--teal-400); color: var(--teal-700); }
+  .cell[data-state="avail"]   { background: #f0fdf4; border-color: #22c55e; color: #16a34a; }
+  .cell[data-state="maybe"]   { background: #fffbeb; border-color: #fbbf24; color: #b45309; }
+  .cell[data-state="unavail"] { background: var(--red-50); border-color: var(--red-400); color: var(--red-600); }
+
+  .actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 24px 20px;
+  }
+
+  /* Info box */
+  .info-banner {
+    margin: 0 24px 16px;
+    padding: 12px 16px;
+    background: var(--teal-50);
+    border: 1px solid var(--teal-100);
+    border-left: 4px solid var(--teal-500);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--teal-700);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="menu">
+  <div id="user-info"></div>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:10px 18px 6px;">
+  <a href="index.html">🏠 Dashboard</a>
+  <a href="horarios.html">📅 Horários</a>
+  <a href="professores.html" data-role="professor,diretor">👨‍🏫 Professores</a>
+  <a href="turmas.html" data-role="diretor">🎓 Turmas</a>
+  <a href="disponibilidade.html" class="active" data-role="professor">🗓️ Disponibilidade</a>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 18px;">
+  <a href="#" onclick="logout(); return false;" style="color:rgba(248,113,113,0.7);">🚪 Sair</a>
+</div>
+
+<div class="content">
+  <h1>🗓️ A minha Disponibilidade</h1>
+
+  <div class="card" style="margin-bottom:24px;position:relative;">
+    <h3>Instruções</h3>
+    <p style="font-size:0.875rem;color:var(--slate-500);margin-top:4px;">
+      Clica nas células para marcar a tua disponibilidade. O diretor irá consultar esta grelha antes de atribuir aulas. 
+      Clica em <strong>Guardar</strong> quando terminares.
+    </p>
+  </div>
+
+  <div class="dispon-wrap" style="position:relative;">
+
+    <div class="legend-bar">
+      <span class="legend-label">Marcar como:</span>
+      <button class="mode-btn m-avail active" id="mb-avail" onclick="setMode('avail')">
+        <span class="mode-dot md-avail"></span> Disponível
+      </button>
+      <button class="mode-btn m-maybe" id="mb-maybe" onclick="setMode('maybe')">
+        <span class="mode-dot md-maybe"></span> Talvez
+      </button>
+      <button class="mode-btn m-unavail" id="mb-unavail" onclick="setMode('unavail')">
+        <span class="mode-dot md-unavail"></span> Indisponível
+      </button>
+      <button class="mode-btn m-clear" id="mb-clear" onclick="setMode('clear')">
+        <span class="mode-dot md-clear"></span> Limpar
+      </button>
+    </div>
+
+    <div class="info-banner" id="infoBanner" style="display:none;margin-top:16px;"></div>
+
+    <div class="table-wrap">
+      <table class="grid-table">
+        <thead>
+          <tr>
+            <th class="hora-th">HORA</th>
+            <th>SEG</th><th>TER</th><th>QUA</th><th>QUI</th><th>SEX</th>
+          </tr>
+        </thead>
+        <tbody id="grid-body"></tbody>
+      </table>
+    </div>
+
+    <div class="actions-row">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-secondary" onclick="fillAll()" style="font-size:0.8rem;padding:8px 16px;">✔ Tudo disponível</button>
+        <button class="btn-secondary" onclick="clearAll()" style="font-size:0.8rem;padding:8px 16px;color:var(--red-600);border-color:var(--red-200);">✕ Limpar tudo</button>
+      </div>
+      <button onclick="saveDisponibilidade()" style="padding:10px 24px;">💾 Guardar</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+const TIME_SLOTS = [
+  '08:30 - 9:20','09:30 - 10:20','10:45 - 11:35','11:45 - 12:30',
+  '12:45 - 13:50','14:00 - 14:50','15:00 - 15:50','16:10 - 17:00','17:10 - 18:00'
+]
+const DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta']
+const DAY_LABELS = ['SEG','TER','QUA','QUI','SEX']
+const STATE_LABELS = { avail: 'Disponível', maybe: 'Talvez', unavail: 'Indisponível' }
+
+let currentMode = 'avail'
+let isDragging = false
+let dragState = null
+
+;(async () => {
+  const user = await requireLogin()
+  if (!user) return
+  if (user.cargo !== 'professor') {
+    window.location.href = '/index.html'
+    return
+  }
+  applyRole(user)
+  buildGrid()
+  await loadAvailability()
+})()
+
+function buildGrid() {
+  const tbody = document.getElementById('grid-body')
+  tbody.innerHTML = ''
+  TIME_SLOTS.forEach(slot => {
+    const tr = document.createElement('tr')
+    const tdH = document.createElement('td')
+    tdH.className = 'hora-td'
+    tdH.textContent = slot
+    tr.appendChild(tdH)
+
+    DAYS.forEach(day => {
+      const td = document.createElement('td')
+      td.className = 'slot-td'
+      const cell = document.createElement('div')
+      cell.className = 'cell'
+      cell.dataset.state = 'empty'
+      cell.dataset.day = day
+      cell.dataset.slot = slot
+      cell.addEventListener('click', onCellClick)
+      cell.addEventListener('mousedown', () => {
+        dragState = currentMode
+        isDragging = false
+        const up = () => { isDragging = false; dragState = null; document.removeEventListener('mouseup', up) }
+        document.addEventListener('mouseup', up)
+      })
+      cell.addEventListener('mouseenter', () => {
+        if (dragState === null) return
+        isDragging = true
+        applyToCell(cell, dragState)
+      })
+      td.appendChild(cell)
+      tr.appendChild(td)
+    })
+    tbody.appendChild(tr)
+  })
+}
+
+function onCellClick(e) {
+  if (isDragging) return
+  applyToCell(e.currentTarget, currentMode)
+}
+
+function applyToCell(cell, mode) {
+  if (mode === 'clear') { cell.dataset.state = 'empty'; cell.textContent = '' }
+  else { cell.dataset.state = mode; cell.textContent = STATE_LABELS[mode] }
+}
+
+function setMode(mode) {
+  currentMode = mode
+  ;['avail','maybe','unavail','clear'].forEach(m => document.getElementById('mb-'+m).classList.remove('active'))
+  document.getElementById('mb-'+mode).classList.add('active')
+}
+
+function clearAll() {
+  document.querySelectorAll('.cell').forEach(c => { c.dataset.state = 'empty'; c.textContent = '' })
+  showBanner('Grelha limpa.', 'info')
+}
+
+function fillAll() {
+  document.querySelectorAll('.cell').forEach(c => { c.dataset.state = 'avail'; c.textContent = 'Disponível' })
+  showBanner('Todos os slots marcados como disponível.', 'info')
+}
+
+async function loadAvailability() {
+  try {
+    const r = await fetch('/api/disponibilidade/me')
+    const slots = await r.json()
+    slots.forEach(s => {
+      const cell = document.querySelector(`.cell[data-day="${s.dia}"][data-slot="${s.hora}"]`)
+      if (cell) applyToCell(cell, s.estado)
+    })
+    if (slots.length > 0) showBanner(`${slots.length} slots carregados da última vez que guardaste.`, 'info')
+  } catch {}
+}
+
+async function saveDisponibilidade() {
+  const slots = [...document.querySelectorAll('.cell')]
+    .filter(c => c.dataset.state !== 'empty')
+    .map(c => ({ dia: c.dataset.day, hora: c.dataset.slot, estado: c.dataset.state }))
+
+  try {
+    const r = await fetch('/api/disponibilidade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slots })
+    })
+    const data = await r.json()
+    if (data.ok) showBanner(`✅ Disponibilidade guardada! (${slots.length} slots)`, 'success')
+    else showBanner('Erro: ' + data.error, 'error')
+  } catch {
+    showBanner('Erro de ligação ao servidor.', 'error')
+  }
+}
+
+function showBanner(msg, type) {
+  const banner = document.getElementById('infoBanner')
+  banner.style.display = 'block'
+  banner.textContent = msg
+  const colors = {
+    success: { bg: '#f0fdf4', border: '#22c55e', color: '#16a34a' },
+    error:   { bg: 'var(--red-50)', border: 'var(--red-400)', color: 'var(--red-600)' },
+    info:    { bg: 'var(--teal-50)', border: 'var(--teal-500)', color: 'var(--teal-700)' }
+  }
+  const c = colors[type] || colors.info
+  banner.style.background = c.bg
+  banner.style.borderLeftColor = c.border
+  banner.style.borderColor = 'rgba(0,0,0,0.05)'
+  banner.style.borderLeftWidth = '4px'
+  banner.style.color = c.color
+  clearTimeout(banner._t)
+  banner._t = setTimeout(() => { banner.style.display = 'none' }, 4000)
+}
+</script>
+
+</body>
+</html>

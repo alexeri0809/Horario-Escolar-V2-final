@@ -1,78 +1,260 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="style.css">
 <title>Professores</title>
+<style>
+  /* Modal de disponibilidade */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.55);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: 28px 32px;
+    max-width: 760px;
+    width: 95%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s var(--ease-spring);
+    position: relative;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+
+  .modal h3 { font-size: 1.1rem; font-weight: 800; color: var(--slate-900); margin-bottom: 6px; }
+  .modal-sub { font-size: 0.82rem; color: var(--slate-400); margin-bottom: 20px; }
+  .modal-close {
+    position: absolute; top: 18px; right: 20px;
+    background: var(--slate-100); border: none; border-radius: 8px;
+    width: 32px; height: 32px; cursor: pointer; font-size: 1.1rem;
+    color: var(--slate-500); display: flex; align-items: center; justify-content: center;
+    transition: all var(--transition); box-shadow: none;
+  }
+  .modal-close:hover { background: var(--slate-200); color: var(--slate-800); transform: none; box-shadow: none; }
+
+  /* Grelha de disponibilidade (read-only) */
+  .avail-grid { overflow-x: auto; }
+  .avail-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 480px;
+    font-size: 0.78rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1.5px solid var(--slate-200);
+  }
+  .avail-table thead tr { background: linear-gradient(90deg, var(--teal-700), var(--teal-500)); }
+  .avail-table th { color: rgba(255,255,255,0.9); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 11px 8px; text-align: center; border: none; }
+  .avail-table th.hora-th { text-align: left; padding-left: 12px; }
+  .avail-table td { padding: 5px; vertical-align: middle; border-bottom: 1px solid var(--slate-100); border-right: 1px solid var(--slate-100); }
+  .avail-table td:last-child { border-right: none; }
+  .avail-table tr:last-child td { border-bottom: none; }
+  .hora-cell { font-size: 0.72rem; font-weight: 700; color: var(--teal-700); padding: 5px 8px 5px 12px; background: var(--teal-50); white-space: nowrap; border-right: 1.5px solid var(--teal-100) !important; }
+
+  .avail-cell {
+    height: 36px; border-radius: 5px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+  }
+  .avail-cell.s-avail   { background: #f0fdf4; color: #16a34a; border: 1.5px solid #86efac; }
+  .avail-cell.s-maybe   { background: #fffbeb; color: #b45309; border: 1.5px solid #fcd34d; }
+  .avail-cell.s-unavail { background: var(--red-50); color: var(--red-600); border: 1.5px solid var(--red-200); }
+  .avail-cell.s-empty   { background: var(--slate-50); color: var(--slate-300); border: 1.5px solid var(--slate-100); }
+
+  .legend-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .pill { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; }
+  .pill-avail   { background: #f0fdf4; color: #16a34a; }
+  .pill-maybe   { background: #fffbeb; color: #b45309; }
+  .pill-unavail { background: var(--red-50); color: var(--red-600); }
+  .pill-empty   { background: var(--slate-100); color: var(--slate-400); }
+  .pill-dot     { width: 8px; height: 8px; border-radius: 2px; }
+
+  .loading-modal { text-align: center; padding: 40px; color: var(--slate-400); font-size: 0.9rem; }
+  .no-avail { text-align: center; padding: 32px; color: var(--slate-400); font-size: 0.88rem; }
+</style>
 </head>
 <body>
 
 <div class="menu">
-<a href="index.html">Dashboard</a>
-<a href="professores.html">Professores</a>
-<a href="turmas.html">Turmas</a>
-<a href="horarios.html">Horários</a>
+  <div id="user-info"></div>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:10px 18px 6px;">
+  <a href="index.html">🏠 Dashboard</a>
+  <a href="horarios.html">📅 Horários</a>
+  <a href="professores.html" class="active" data-role="professor,diretor">👨‍🏫 Professores</a>
+  <a href="turmas.html" data-role="diretor">🎓 Turmas</a>
+  <a href="disponibilidade.html" data-role="professor">🗓️ Disponibilidade</a>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 18px;">
+  <a href="#" onclick="logout(); return false;" style="color:rgba(248,113,113,0.7);">🚪 Sair</a>
 </div>
 
 <div class="content">
-<h1>👨‍🏫 Professores</h1>
+  <h1>👨‍🏫 Professores</h1>
 
-<div class="card">
-<input id="nome" placeholder="Nome do professor">
-<button onclick="addProfessor()">Adicionar</button>
+  <div class="card" data-role="diretor">
+    <h3>Adicionar Professor</h3>
+    <div class="form-group">
+      <input id="nome" placeholder="Nome do professor">
+      <button onclick="addProfessor()">Adicionar</button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th data-role="diretor">Disponibilidade</th>
+        <th data-role="diretor">Ações</th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
 </div>
 
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>Nome</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="lista"></tbody>
-</table>
+<!-- Modal de disponibilidade -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="fecharModal()">✕</button>
+    <h3 id="modalTitulo">Disponibilidade</h3>
+    <p class="modal-sub" id="modalSub">Carregando...</p>
 
+    <div class="legend-pills">
+      <div class="pill pill-avail"><span class="pill-dot" style="background:#22c55e"></span>Disponível</div>
+      <div class="pill pill-maybe"><span class="pill-dot" style="background:#fbbf24"></span>Talvez</div>
+      <div class="pill pill-unavail"><span class="pill-dot" style="background:#ef4444"></span>Indisponível</div>
+      <div class="pill pill-empty"><span class="pill-dot" style="background:#cbd5e1"></span>Não definido</div>
+    </div>
+
+    <div id="modalContent" class="loading-modal">A carregar...</div>
+  </div>
 </div>
 
+<script src="auth.js"></script>
 <script>
-async function carregar(){
-    let r=await fetch("/professores")
-    let dados=await r.json()
-    let lista=document.getElementById("lista")
-    lista.innerHTML=""
-    dados.forEach(p=>{
-        lista.innerHTML+=`
-        <tr>
-        <td>${p.id}</td>
-        <td>${p.nome}</td>
-        <td>
-        <button onclick="apagarProfessor(${p.id})">❌</button>
-        </td>
-        </tr>
-        `
+const HORAS = ['08:30 - 9:20','09:30 - 10:20','10:45 - 11:35','11:45 - 12:30','12:45 - 13:50','14:00 - 14:50','15:00 - 15:50','16:10 - 17:00','17:10 - 18:00']
+const DIAS  = ['Segunda','Terça','Quarta','Quinta','Sexta']
+const DIA_LABELS = ['SEG','TER','QUA','QUI','SEX']
+
+let cargoAtual = ''
+
+;(async () => {
+  const user = await requireLogin()
+  if (!user) return
+  cargoAtual = user.cargo
+  applyRole(user)
+  carregar()
+})()
+
+async function carregar() {
+  const r = await fetch("/professores")
+  const dados = await r.json()
+  const lista = document.getElementById("lista")
+  lista.innerHTML = ""
+
+  dados.forEach(p => {
+    const dispBtn = cargoAtual === 'diretor'
+      ? `<td><button onclick="verDisponibilidade('${encodeURIComponent(p.nome)}')" class="btn-secondary" style="font-size:0.78rem;padding:6px 14px;">📅 Ver</button></td>`
+      : ''
+
+    const acoes = cargoAtual === 'diretor'
+      ? `<td><button onclick="apagarProfessor(${p.id})" style="background:transparent;color:var(--red-600);border:1.5px solid var(--red-200);box-shadow:none;font-size:0.78rem;padding:6px 14px;">❌ Remover</button></td>`
+      : ''
+
+    lista.innerHTML += `<tr>
+      <td>${p.id}</td>
+      <td><strong>${p.nome}</strong></td>
+      ${dispBtn}
+      ${acoes}
+    </tr>`
+  })
+}
+
+async function addProfessor() {
+  const nome = document.getElementById("nome").value.trim()
+  if (!nome) return
+  const r = await fetch("/professores", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nome }) })
+  if (!r.ok) { const e = await r.json(); alert("Erro: " + e.error); return }
+  document.getElementById("nome").value = ""
+  carregar()
+}
+
+async function apagarProfessor(id) {
+  if (!confirm("Tens a certeza que queres remover este professor?")) return
+  const r = await fetch("/professores/" + id, { method: "DELETE" })
+  const res = await r.json()
+  if (res.ok) carregar()
+  else alert("Erro ao apagar: " + res.error)
+}
+
+// ── Modal de Disponibilidade ──────────────────────────────────
+
+async function verDisponibilidade(nomeEncoded) {
+  const nome = decodeURIComponent(nomeEncoded)
+  document.getElementById('modalTitulo').textContent = `📅 Disponibilidade — ${nome}`
+  document.getElementById('modalSub').textContent = 'A carregar disponibilidade...'
+  document.getElementById('modalContent').innerHTML = '<div class="loading-modal">A carregar...</div>'
+  document.getElementById('modalOverlay').classList.add('open')
+
+  try {
+    const r = await fetch(`/api/disponibilidade-nome/${encodeURIComponent(nome)}`)
+    const slots = await r.json()
+
+    if (slots.length === 0) {
+      document.getElementById('modalSub').textContent = 'Este professor ainda não definiu a disponibilidade.'
+      document.getElementById('modalContent').innerHTML = '<div class="no-avail">📭 Sem disponibilidade definida</div>'
+      return
+    }
+
+    // Mapeia slots por dia+hora
+    const mapa = {}
+    slots.forEach(s => { mapa[s.dia + '|' + s.hora] = s.estado })
+
+    const avCount = slots.filter(s => s.estado === 'avail').length
+    const mbCount = slots.filter(s => s.estado === 'maybe').length
+    const unCount = slots.filter(s => s.estado === 'unavail').length
+    document.getElementById('modalSub').textContent = `${avCount} disponível · ${mbCount} talvez · ${unCount} indisponível`
+
+    // Render grid
+    let html = '<div class="avail-grid"><table class="avail-table"><thead><tr><th class="hora-th">HORA</th>'
+    DIAS.forEach((_, i) => { html += `<th>${DIA_LABELS[i]}</th>` })
+    html += '</tr></thead><tbody>'
+
+    HORAS.forEach(hora => {
+      html += `<tr><td class="hora-cell">${hora}</td>`
+      DIAS.forEach(dia => {
+        const estado = mapa[dia + '|' + hora] || 'empty'
+        const labels = { avail: 'Disponível', maybe: 'Talvez', unavail: 'Indisponível', empty: '—' }
+        html += `<td><div class="avail-cell s-${estado}">${labels[estado]}</div></td>`
+      })
+      html += '</tr>'
     })
+    html += '</tbody></table></div>'
+
+    document.getElementById('modalContent').innerHTML = html
+
+  } catch {
+    document.getElementById('modalContent').innerHTML = '<div class="no-avail">Erro ao carregar disponibilidade.</div>'
+  }
 }
 
-async function addProfessor(){
-    let nome=document.getElementById("nome").value
-    if(!nome) return
-    await fetch("/professores",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({nome})})
-    document.getElementById("nome").value=""
-    carregar()
+function fecharModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay') && !e.target.classList.contains('modal-close')) return
+  if (!e || e.target === document.getElementById('modalOverlay') || e.target.classList.contains('modal-close')) {
+    document.getElementById('modalOverlay').classList.remove('open')
+  }
 }
-
-async function apagarProfessor(id){
-    let r = await fetch("/professores/"+id,{
-        method:"DELETE",
-        headers: {"Content-Type":"application/json"}
-    })
-    let res = await r.json()
-    if(res.ok) carregar()
-    else alert("Erro ao apagar: "+res.error)
-}
-
-carregar()
 </script>
 
 </body>

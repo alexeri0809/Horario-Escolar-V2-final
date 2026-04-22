@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Escola Bento de Jesus Caraça</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan:       #00abc8;
+      --cyan-dark:  #0090a8;
+      --gray-900:   #1e2530;
+      --white:      #ffffff;
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(0,171,200,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 80%, rgba(0,144,168,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,171,200,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,171,200,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    .login-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      padding: 24px;
+    }
+
+    .school-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .school-logo {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dark) 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 2rem;
+      box-shadow: 0 8px 32px rgba(0,171,200,0.35);
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    .school-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--white);
+    }
+
+    .school-header p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 4px;
+    }
+
+    .login-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 36px 32px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+      animation: slideUp 0.4s ease both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card h2 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper { position: relative; }
+
+    .input-icon {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.3);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.93rem;
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+
+    input::placeholder { color: rgba(255,255,255,0.2); }
+
+    input:focus {
+      border-color: var(--cyan);
+      background: rgba(0,171,200,0.08);
+      box-shadow: 0 0 0 3px rgba(0,171,200,0.15);
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      padding: 0;
+      font-size: 1rem;
+      transition: color var(--transition);
+      box-shadow: none;
+    }
+    .toggle-pass:hover { color: var(--cyan); background: none; transform: translateY(-50%); box-shadow: none; }
+
+    .alert-error {
+      background: rgba(229,62,62,0.12);
+      border: 1px solid rgba(229,62,62,0.3);
+      border-radius: 8px;
+      color: #fc8181;
+      font-size: 0.85rem;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .alert-error.show { display: flex; }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dark) 100%);
+      border: none;
+      color: var(--white);
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+      box-shadow: 0 4px 16px rgba(0,171,200,0.35);
+      margin-top: 8px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,171,200,0.45);
+    }
+
+    .btn-login.loading { pointer-events: none; opacity: 0.7; }
+
+    hr.divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      margin: 22px 0 16px;
+    }
+
+    .cargos-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .cargo-chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .cargo-chip:hover { background: rgba(0,171,200,0.08); border-color: rgba(0,171,200,0.3); }
+    .cargo-chip .emoji { font-size: 1.2rem; display: block; margin-bottom: 3px; }
+    .cargo-chip .nome { font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .link-register {
+      text-align: center;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .link-register a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+    .link-register a:hover { color: #00d4f0; }
+  </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+
+  <div class="school-header">
+    <div class="school-logo">📚</div>
+    <h1>Bento de Jesus Caraça</h1>
+    <p>Sistema de Gestão de Horários Escolares</p>
+  </div>
+
+  <div class="login-card">
+    <h2>Entrar na conta</h2>
+
+    <div class="alert-error" id="erro">
+      <span>⚠️</span><span id="erro-msg"></span>
+    </div>
+
+    <div class="form-group">
+      <label>Utilizador</label>
+      <div class="input-wrapper">
+        <span class="input-icon">👤</span>
+        <input type="text" id="username" placeholder="O teu username" autocomplete="username">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrapper">
+        <span class="input-icon">🔒</span>
+        <input type="password" id="password" placeholder="A tua password" autocomplete="current-password">
+        <button class="toggle-pass" onclick="togglePass()" type="button">👁️</button>
+      </div>
+    </div>
+
+    <button class="btn-login" id="btnLogin" onclick="fazerLogin()">Entrar</button>
+
+    <hr class="divider">
+
+    <p style="font-size:0.72rem;color:rgba(255,255,255,0.25);text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Demo rápido</p>
+    <div class="cargos-info">
+      <div class="cargo-chip" onclick="preencherDemo('aluno','1234')">
+        <span class="emoji">🎒</span>
+        <span class="nome">Aluno</span>
+      </div>
+      <div class="cargo-chip" onclick="preencherDemo('professor','1234')">
+        <span class="emoji">🧑‍🏫</span>
+        <span class="nome">Professor</span>
+      </div>
+      <div class="cargo-chip" onclick="preencherDemo('diretor','1234')">
+        <span class="emoji">🏫</span>
+        <span class="nome">Diretor</span>
+      </div>
+    </div>
+
+    <div class="link-register">
+      Não tens conta? <a href="/register.html">Criar conta</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin() })
+
+  function togglePass() {
+    const input = document.getElementById('password')
+    const btn = document.querySelector('.toggle-pass')
+    input.type = input.type === 'password' ? 'text' : 'password'
+    btn.textContent = input.type === 'password' ? '👁️' : '🙈'
+  }
+
+  function preencherDemo(user, pass) {
+    document.getElementById('username').value = user
+    document.getElementById('password').value = pass
+  }
+
+  async function fazerLogin() {
+    const username = document.getElementById('username').value.trim()
+    const password = document.getElementById('password').value
+    const btn = document.getElementById('btnLogin')
+    const erro = document.getElementById('erro')
+    const erroMsg = document.getElementById('erro-msg')
+
+    if (!username || !password) {
+      erroMsg.textContent = 'Preenche todos os campos.'
+      erro.classList.add('show')
+      return
+    }
+
+    btn.classList.add('loading')
+    btn.textContent = 'A entrar...'
+    erro.classList.remove('show')
+
+    try {
+      const r = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      const data = await r.json()
+
+      if (!r.ok) {
+        erroMsg.textContent = data.error || 'Erro ao entrar.'
+        erro.classList.add('show')
+        btn.classList.remove('loading')
+        btn.textContent = 'Entrar'
+        return
+      }
+
+      window.location.href = '/index.html'
+    } catch {
+      erroMsg.textContent = 'Erro de ligação ao servidor.'
+      erro.classList.add('show')
+      btn.classList.remove('loading')
+      btn.textContent = 'Entrar'
+    }
+  }
+</script>
+
+</body>
+</html>
