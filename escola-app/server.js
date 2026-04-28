@@ -68,6 +68,16 @@ app.post("/api/register", async (req, res) => {
       [username, hash, nome, cargo],
       function(err) {
         if (err) return res.status(500).json({ error: 'Erro ao criar conta' })
+
+        // Se for professor, adiciona automaticamente à tabela de professores
+        if (cargo === 'professor') {
+          db.get("SELECT id FROM professores WHERE nome = ?", [nome], (err2, existing) => {
+            if (!existing) {
+              db.run("INSERT INTO professores(nome) VALUES(?)", [nome])
+            }
+          })
+        }
+
         res.json({ ok: true })
       }
     )

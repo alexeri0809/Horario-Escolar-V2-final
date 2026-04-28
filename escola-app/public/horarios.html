@@ -3,124 +3,455 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="style.css">
-<title>Horários</title>
+<title>Horários — EPBJC</title>
 <style>
-  /* Editor modal */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15,23,42,0.55);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(3px);
-  }
-  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
-  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+/* ── MODAL ───────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; animation: fadeIn 0.18s ease; }
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 
-  .modal {
-    background: var(--white);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
-    padding: 28px 32px;
-    width: 440px;
-    max-width: 95%;
-    animation: slideUp 0.25s var(--ease-spring);
-    position: relative;
-    border-top: 3px solid var(--teal-500);
-  }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 26px 28px 22px;
+  width: 420px;
+  max-width: 95%;
+  animation: slideUp 0.22s var(--ease-spring);
+  position: relative;
+  border-top: 3px solid var(--teal-500);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
 
-  .modal h3 { font-size: 1rem; font-weight: 800; color: var(--slate-900); margin-bottom: 20px; }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
 
-  .modal select, .modal input {
-    width: 100%;
-    display: block;
-    margin: 0 0 12px 0;
-  }
+.modal-header h3 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  margin: 0;
+}
 
-  .modal-actions { display: flex; gap: 8px; margin-top: 8px; }
-  .modal-actions button { flex: 1; }
+.modal-close {
+  background: var(--slate-100);
+  border: none;
+  border-radius: var(--radius-sm);
+  width: 28px; height: 28px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--slate-500);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: none; padding: 0;
+  transition: all var(--transition);
+}
+.modal-close:hover {
+  background: var(--slate-200);
+  transform: none;
+  box-shadow: none;
+  color: var(--slate-700);
+  filter: none;
+}
 
-  .modal-close {
-    position: absolute; top: 16px; right: 16px;
-    background: var(--slate-100); border: none; border-radius: 8px;
-    width: 30px; height: 30px; cursor: pointer; font-size: 1rem;
-    color: var(--slate-500); display: flex; align-items: center; justify-content: center;
-    box-shadow: none; padding: 0; transition: all var(--transition);
-  }
-  .modal-close:hover { background: var(--slate-200); transform: none; box-shadow: none; }
+.modal-field { margin-bottom: 12px; }
 
-  /* Aula card */
-  .aula-card {
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 0.78rem;
-    line-height: 1.5;
-    border-left: 3px solid var(--teal-500);
-    box-shadow: var(--shadow-xs);
-    transition: transform 0.15s var(--ease-spring), box-shadow var(--transition);
-    margin-bottom: 4px;
-  }
-  .aula-card:hover { transform: scale(1.02); box-shadow: var(--shadow); }
-  .aula-card strong { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 1px; }
-  .aula-card .info  { font-size: 0.73rem; opacity: 0.75; }
-  .aula-card .btns  { display: flex; gap: 4px; margin-top: 6px; }
-  .aula-card .btns button { padding: 3px 8px; font-size: 0.7rem; border-radius: 5px; box-shadow: none; }
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--slate-100);
+}
+.modal-actions button { flex: 1; }
 
-  .aviso-bar {
-    background: var(--amber-50);
-    border: 1px solid var(--amber-100);
-    border-left: 4px solid var(--amber-500);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    font-size: 0.84rem;
-    color: var(--amber-700);
-    font-weight: 500;
-    margin-bottom: 16px;
-    display: none;
-  }
-  .aviso-bar.show { display: block; }
+/* ── PAINEL DE ADIÇÃO ────────────────────────────────────────── */
+.add-panel {
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-top: 3px solid var(--teal-500);
+  border-radius: var(--radius-xl);
+  padding: 22px 26px 18px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.35s var(--ease) both;
+  position: relative;
+  overflow: hidden;
+}
 
-  .err-bar {
-    background: var(--red-50);
-    border: 1px solid var(--red-100);
-    border-left: 4px solid var(--red-500);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    font-size: 0.84rem;
-    color: var(--red-600);
-    font-weight: 500;
-    margin-bottom: 16px;
-    display: none;
-  }
-  .err-bar.show { display: block; }
+.panel-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal-600);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--slate-100);
+}
 
-  /* Disciplina box */
-  #novaDisciplinaBox { margin-top: 16px; }
+/* ── BARRAS DE AVISO ─────────────────────────────────────────── */
+.aviso-bar, .err-bar {
+  border-radius: var(--radius-sm);
+  padding: 9px 13px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 14px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+}
+.aviso-bar.show, .err-bar.show { display: flex; }
+
+.aviso-bar {
+  background: var(--amber-50);
+  color: var(--amber-700);
+  border-color: var(--amber-100);
+  border-left: 3px solid var(--amber-500);
+}
+.err-bar {
+  background: var(--red-50);
+  color: var(--red-600);
+  border-color: var(--red-100);
+  border-left: 3px solid var(--red-500);
+}
+
+/* ── TABELA DO HORÁRIO ───────────────────────────────────────── */
+.table-wrap {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--slate-200);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  animation: fadeUp 0.4s var(--ease) both;
+  animation-delay: 0.05s;
+}
+
+/* Cabeçalho da escola (imita o documento físico) */
+.doc-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: stretch;
+  border-bottom: 2px solid var(--teal-600);
+  background: var(--white);
+}
+
+.doc-header-logo {
+  padding: 12px 18px;
+  border-right: 1px solid var(--slate-200);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 120px;
+}
+
+.school-name-sm {
+  font-size: 8.5px;
+  font-weight: 800;
+  color: var(--teal-700);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+  line-height: 1.4;
+}
+.school-sub-sm {
+  font-size: 7px;
+  color: var(--slate-400);
+  text-align: center;
+  margin-top: 2px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.doc-header-center {
+  padding: 12px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.doc-header-center .school-full {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+.doc-header-center .doc-title-text {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--teal-700);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.doc-header-right {
+  padding: 12px 18px;
+  border-left: 1px solid var(--slate-200);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 100px;
+}
+.ano-lbl {
+  font-size: 7.5px;
+  font-weight: 700;
+  color: var(--slate-400);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.ano-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--teal-700);
+  margin-top: 2px;
+}
+
+/* Subheader turma — aqui fica o select da turma activa */
+.doc-subheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  background: var(--slate-50);
+  border-bottom: 1px solid var(--slate-200);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.turma-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.turma-label-sm {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#filtroTurma {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 24px 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid var(--teal-200);
+  background-color: var(--white);
+  color: var(--teal-700);
+  min-width: 140px;
+  width: auto;
+  cursor: pointer;
+}
+
+#filtroTurma:focus {
+  border-color: var(--teal-500);
+  box-shadow: 0 0 0 2px rgba(8,145,178,0.12);
+}
+
+.turma-badge {
+  background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+  color: white;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 3px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 6px rgba(8,145,178,0.25);
+  white-space: nowrap;
+}
+
+/* Tabela interna */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  margin: 0;
+}
+
+thead tr {
+  background: linear-gradient(90deg, var(--teal-800), var(--teal-600));
+}
+
+th {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 12px 10px;
+  text-align: center;
+  border-bottom: none;
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+th:first-child {
+  text-align: left;
+  padding-left: 18px;
+  background: rgba(0,0,0,0.15);
+  min-width: 116px;
+}
+
+th:last-child { border-right: none; }
+
+/* Linha almoço */
+tr.almoco-row td {
+  background: var(--slate-100) !important;
+  color: var(--slate-400);
+  font-style: italic;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 6px 10px;
+  letter-spacing: 0.04em;
+  border-color: var(--slate-200) !important;
+}
+
+tr.almoco-row td:first-child {
+  background: #e8ecf0 !important;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--slate-500);
+  text-align: left;
+  padding-left: 18px;
+  border-right: 2px solid var(--teal-200) !important;
+}
+
+/* Células hora */
+td:first-child {
+  background: var(--teal-50);
+  border-right: 2px solid var(--teal-200) !important;
+  padding: 10px 12px 10px 18px !important;
+  white-space: nowrap;
+  min-width: 116px;
+  vertical-align: middle;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--teal-700);
+}
+
+/* Células de dias */
+tbody td {
+  border-bottom: 1px solid var(--slate-100);
+  border-right: 1px solid var(--slate-100);
+  padding: 5px 6px;
+  vertical-align: top;
+  min-width: 130px;
+}
+
+tbody td:last-child { border-right: none; }
+tbody tr:last-child td { border-bottom: none; }
+
+tbody tr:nth-child(odd)  td:not(:first-child) { background: var(--white); }
+tbody tr:nth-child(even) td:not(:first-child) { background: var(--slate-50); }
+tbody tr:hover td { background: var(--teal-50) !important; }
+tbody tr:hover td:first-child { background: #c8eef5 !important; }
+
+/* ── AULA CARD ───────────────────────────────────────────────── */
+.aula-card {
+  padding: 6px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  line-height: 1.4;
+  border-left: 3px solid var(--teal-500);
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.15s var(--ease-spring), box-shadow var(--transition);
+  margin-bottom: 3px;
+  cursor: default;
+}
+.aula-card:last-child { margin-bottom: 0; }
+.aula-card:hover {
+  transform: translateY(-1px) scale(1.015);
+  box-shadow: var(--shadow);
+}
+.aula-card strong {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 1px;
+}
+.aula-card .info {
+  font-size: 0.7rem;
+  opacity: 0.72;
+  font-weight: 500;
+}
+.aula-card .btns {
+  display: flex;
+  gap: 4px;
+  margin-top: 5px;
+}
+.aula-card .btns button {
+  padding: 2px 7px;
+  font-size: 0.67rem;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+/* ── BOX NOVA DISCIPLINA ─────────────────────────────────────── */
+#novaDisciplinaBox {
+  margin-top: 14px;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px 14px;
+  border-top: 2px solid var(--teal-400);
+}
+
+#novaDisciplinaBox h3 {
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+}
 </style>
 </head>
 <body>
 
 <div class="menu">
   <div id="user-info"></div>
-  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:10px 18px 6px;">
+  <hr>
   <a href="index.html">🏠 Dashboard</a>
   <a href="horarios.html" class="active">📅 Horários</a>
   <a href="professores.html" data-role="professor,diretor">👨‍🏫 Professores</a>
   <a href="turmas.html" data-role="diretor">🎓 Turmas</a>
   <a href="disponibilidade.html" data-role="professor">🗓️ Disponibilidade</a>
-  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:6px 18px;">
+  <hr>
   <a href="#" onclick="logout(); return false;" style="color:rgba(248,113,113,0.7);">🚪 Sair</a>
 </div>
 
 <div class="content">
-  <h1>📅 Horários</h1>
 
-  <!-- Painel só para o DIRETOR -->
-  <div class="card" data-role="diretor">
-    <h3>Adicionar Aula</h3>
+  <!-- Painel Adicionar Aula (só diretor) -->
+  <div class="add-panel" data-role="diretor">
+    <div class="panel-title">Adicionar Aula</div>
 
     <div class="aviso-bar" id="avisoBarra"></div>
     <div class="err-bar"   id="errBarra"></div>
@@ -155,15 +486,13 @@
         <label>Disciplina</label>
         <select id="disciplina"></select>
       </div>
-      <div style="align-self:flex-end">
+      <div style="align-self:flex-end; display:flex; gap:8px; margin-bottom:0;">
         <button onclick="addHorario()">+ Adicionar</button>
-      </div>
-      <div style="align-self:flex-end">
         <button onclick="toggleDisciplinaBox()" class="btn-secondary">+ Disciplina</button>
       </div>
     </div>
 
-    <div id="novaDisciplinaBox" class="card" style="display:none;margin-bottom:0">
+    <div id="novaDisciplinaBox" style="display:none">
       <h3>Nova Disciplina</h3>
       <div class="form-group">
         <div>
@@ -181,53 +510,99 @@
             <option value="#000000">Preto</option>
           </select>
         </div>
-        <div style="align-self:flex-end">
+        <div style="align-self:flex-end; display:flex; gap:8px; margin-bottom:0;">
           <button onclick="guardarDisciplina()">Guardar</button>
-        </div>
-        <div style="align-self:flex-end">
           <button onclick="toggleDisciplinaBox()" class="btn-secondary">Cancelar</button>
         </div>
       </div>
     </div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Hora</th>
-        <th>Segunda</th><th>Terça</th><th>Quarta</th><th>Quinta</th><th>Sexta</th>
-      </tr>
-    </thead>
-    <tbody id="tabela"></tbody>
-  </table>
-</div>
+  <!-- Bloco do horário -->
+  <div class="table-wrap">
 
-<!-- Modal de edição (só para diretor) -->
+    <!-- Cabeçalho do documento -->
+    <div class="doc-header">
+      <div class="doc-header-logo">
+        <div class="school-name-sm">Escola Profissional<br>Bento de Jesus Caraça</div>
+        <div class="school-sub-sm">Delegação do Barreiro</div>
+      </div>
+      <div class="doc-header-center">
+        <div class="school-full">Escola Profissional Bento de Jesus Caraça (Delegação)</div>
+        <div class="doc-title-text">Horário de Turma</div>
+      </div>
+      <div class="doc-header-right">
+        <div class="ano-lbl">Ano Letivo</div>
+        <div class="ano-val">2025/2026</div>
+      </div>
+    </div>
+
+    <!-- Subheader com filtro de turma -->
+    <div class="doc-subheader">
+      <div class="turma-info">
+        <span class="turma-label-sm">Curso: TGPSI</span>
+        <select id="filtroTurma" onchange="filtrarPorTurma()">
+          <option value="">Todas as turmas</option>
+        </select>
+      </div>
+      <div class="turma-badge" id="turmaBadge">Todas as turmas</div>
+    </div>
+
+    <!-- Tabela -->
+    <table>
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Segunda</th><th>Terça</th><th>Quarta</th><th>Quinta</th><th>Sexta</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+
+  </div><!-- /table-wrap -->
+
+</div><!-- /content -->
+
+<!-- Modal de edição -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
-    <button class="modal-close" onclick="fecharEditor()">✕</button>
-    <h3>✏️ Editar Aula</h3>
-    <label>Turma</label>
-    <select id="editTurma"></select>
-    <label>Professor</label>
-    <select id="editProfessor"></select>
-    <label>Dia</label>
-    <select id="editDia">
-      <option>Segunda</option><option>Terça</option><option>Quarta</option>
-      <option>Quinta</option><option>Sexta</option>
-    </select>
-    <label>Hora</label>
-    <select id="editHora">
-      <option>08:30 - 9:20</option><option>09:30 - 10:20</option>
-      <option>10:45 - 11:35</option><option>11:45 - 12:30</option>
-      <option>12:45 - 13:50</option><option>14:00 - 14:50</option>
-      <option>15:00 - 15:50</option><option>16:10 - 17:00</option>
-      <option>17:10 - 18:00</option>
-    </select>
-    <label>Disciplina</label>
-    <select id="editDisciplina"></select>
+    <div class="modal-header">
+      <h3>✏️ Editar Aula</h3>
+      <button class="modal-close" onclick="fecharEditor()">✕</button>
+    </div>
+
+    <div class="modal-field">
+      <label>Turma</label>
+      <select id="editTurma"></select>
+    </div>
+    <div class="modal-field">
+      <label>Professor</label>
+      <select id="editProfessor"></select>
+    </div>
+    <div class="modal-field">
+      <label>Dia</label>
+      <select id="editDia">
+        <option>Segunda</option><option>Terça</option><option>Quarta</option>
+        <option>Quinta</option><option>Sexta</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Hora</label>
+      <select id="editHora">
+        <option>08:30 - 9:20</option><option>09:30 - 10:20</option>
+        <option>10:45 - 11:35</option><option>11:45 - 12:30</option>
+        <option>12:45 - 13:50</option><option>14:00 - 14:50</option>
+        <option>15:00 - 15:50</option><option>16:10 - 17:00</option>
+        <option>17:10 - 18:00</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Disciplina</label>
+      <select id="editDisciplina"></select>
+    </div>
+
     <div class="modal-actions">
-      <button onclick="guardarEdicao()">Guardar</button>
+      <button onclick="guardarEdicao()">💾 Guardar</button>
       <button onclick="fecharEditor()" class="btn-secondary">Cancelar</button>
     </div>
   </div>
@@ -235,14 +610,21 @@
 
 <script src="auth.js"></script>
 <script>
-const HORAS = ['08:30 - 9:20','09:30 - 10:20','10:45 - 11:35','11:45 - 12:30','12:45 - 13:50','14:00 - 14:50','15:00 - 15:50','16:10 - 17:00','17:10 - 18:00']
+const HORAS = [
+  '08:30 - 9:20','09:30 - 10:20','10:45 - 11:35','11:45 - 12:30',
+  '12:45 - 13:50',
+  '14:00 - 14:50','15:00 - 15:50','16:10 - 17:00','17:10 - 18:00'
+]
 const DIAS  = ['Segunda','Terça','Quarta','Quinta','Sexta']
+const HORA_ALMOCO = '12:45 - 13:50'
 
-let cargoAtual   = ''
-let todosProfs   = []
-let todasTurmas  = []
-let todasDisc    = []
-let editandoId   = null
+let cargoAtual  = ''
+let todosProfs  = []
+let todasTurmas = []
+let todasDisc   = []
+let todosHorarios = []
+let editandoId  = null
+let turmaFiltro = ''
 
 ;(async () => {
   const user = await requireLogin()
@@ -260,17 +642,25 @@ async function carregarTudo() {
     fetch('/horarios').then(r => r.json()),
   ])
 
-  todosProfs  = profs
-  todasTurmas = turmas
-  todasDisc   = discs
+  todosProfs    = profs
+  todasTurmas   = turmas
+  todasDisc     = discs
+  todosHorarios = horarios
 
-  // Preenche selects
-  preencherSelect('turma',     turmas,  'nome')
-  preencherSelect('professor', profs,   'nome')
+  preencherSelect('turma',         turmas, 'nome')
+  preencherSelect('professor',     profs,  'nome')
   preencherSelect('editTurma',     turmas, 'nome')
   preencherSelect('editProfessor', profs,  'nome')
   preencherDiscSelect('disciplina',     discs)
   preencherDiscSelect('editDisciplina', discs)
+
+  // Filtro de turma no subheader
+  const ft = document.getElementById('filtroTurma')
+  if (ft) {
+    ft.innerHTML = '<option value="">Todas as turmas</option>' +
+      turmas.map(t => `<option value="${t.nome}">${t.nome}</option>`).join('')
+    ft.value = turmaFiltro
+  }
 
   renderTabela(horarios, discs)
 }
@@ -287,29 +677,52 @@ function preencherDiscSelect(id, discs) {
   sel.innerHTML = discs.map(d => `<option value="${d.nome}">${d.nome}</option>`).join('')
 }
 
+function filtrarPorTurma() {
+  const ft = document.getElementById('filtroTurma')
+  turmaFiltro = ft ? ft.value : ''
+  const badge = document.getElementById('turmaBadge')
+  if (badge) badge.textContent = turmaFiltro || 'Todas as turmas'
+  renderTabela(todosHorarios, todasDisc)
+}
+
 function renderTabela(horarios, discs) {
   const tabela = document.getElementById('tabela')
   tabela.innerHTML = ''
 
+  // Filtra por turma se seleccionado
+  const lista = turmaFiltro
+    ? horarios.filter(h => h.turma === turmaFiltro)
+    : horarios
+
   HORAS.forEach(hora => {
     const tr = document.createElement('tr')
+
+    // Linha de almoço especial
+    if (hora === HORA_ALMOCO) {
+      tr.classList.add('almoco-row')
+      tr.innerHTML = `<td>${hora}</td>` +
+        DIAS.map(() => `<td>— Almoço —</td>`).join('')
+      tabela.appendChild(tr)
+      return
+    }
+
     tr.innerHTML = `<td>${hora}</td>`
 
     DIAS.forEach(dia => {
-      const aulas = horarios.filter(h => h.dia === dia && h.hora === hora)
+      const aulas = lista.filter(h => h.dia === dia && h.hora === hora)
       let html = ''
 
       aulas.forEach(aula => {
         const disc  = discs.find(d => d.nome === aula.disciplina)
-        const bg    = disc ? disc.cor    : 'var(--teal-100)'
-        const color = disc ? disc.texto  : 'var(--teal-900)'
+        const bg    = disc ? disc.cor   : 'var(--teal-100)'
+        const color = disc ? disc.texto : 'var(--teal-900)'
 
         const btns = cargoAtual === 'diretor'
           ? `<div class="btns">
-               <button onclick="abrirEditor(${aula.id},'${aula.turma}','${aula.professor}','${aula.dia}','${aula.hora}','${aula.disciplina}')" 
-                 style="background:transparent;color:#16a34a;border:1.5px solid #86efac;">✏️</button>
+               <button onclick="abrirEditor(${aula.id},'${aula.turma}','${aula.professor}','${aula.dia}','${aula.hora}','${aula.disciplina}')"
+                 style="background:transparent;color:var(--green-700);border:1.5px solid var(--green-200);">✏️</button>
                <button onclick="apagarAula(${aula.id})"
-                 style="background:transparent;color:var(--red-600);border:1.5px solid var(--red-200);">❌</button>
+                 style="background:transparent;color:var(--red-600);border:1.5px solid var(--red-200);">✕</button>
              </div>`
           : ''
 
@@ -335,7 +748,6 @@ async function addHorario() {
   const dia        = document.getElementById('dia').value
   const hora       = document.getElementById('hora').value
   const disciplina = document.getElementById('disciplina').value
-
   if (!turma || !professor || !disciplina) return
 
   document.getElementById('errBarra').classList.remove('show')
@@ -371,10 +783,10 @@ async function apagarAula(id) {
 
 function abrirEditor(id, turma, professor, dia, hora, disciplina) {
   editandoId = id
-  document.getElementById('editTurma').value     = turma
-  document.getElementById('editProfessor').value = professor
-  document.getElementById('editDia').value       = dia
-  document.getElementById('editHora').value      = hora
+  document.getElementById('editTurma').value      = turma
+  document.getElementById('editProfessor').value  = professor
+  document.getElementById('editDia').value        = dia
+  document.getElementById('editHora').value       = hora
   document.getElementById('editDisciplina').value = disciplina
   document.getElementById('editModal').classList.add('open')
 }
@@ -398,10 +810,7 @@ async function guardarEdicao() {
   })
   const data = await r.json()
 
-  if (!r.ok) {
-    alert('Erro: ' + data.error)
-    return
-  }
+  if (!r.ok) { alert('Erro: ' + data.error); return }
 
   fecharEditor()
 
